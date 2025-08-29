@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "126828428118",
+    "project_id": "pds3-lectornovelas",
+    "storage_bucket": "pds3-lectornovelas.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:126828428118:android:8ee9f411fe5df745f6b4f7",
+        "android_client_info": {
+          "package_name": "com.example.lectornovelaselectronicos"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBzEavObdC8U6rHbTvVZSP9ARYU2rxqL_o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
