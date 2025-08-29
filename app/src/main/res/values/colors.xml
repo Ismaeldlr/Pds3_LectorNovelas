@@ -1,0 +1,27 @@
+<resources>
+    <!-- Paleta clara -->
+    <color name="md_light_primary">#6750A4</color>
+    <color name="md_light_onPrimary">#FFFFFF</color>
+
+    <color name="md_light_surface">#FFFBFE</color>
+    <color name="md_light_onSurface">#1C1B1F</color>
+    <color name="md_light_surfaceVariant">#E7E0EC</color>
+    <color name="md_light_outline">#79747E</color>
+
+    <!-- Para el BottomNavigation activo -->
+    <color name="md_light_secondary">#625B71</color>
+    <color name="md_light_onSecondary">#FFFFFF</color>
+
+    <!-- Paleta oscura -->
+    <color name="md_dark_primary">#D0BCFF</color>
+    <color name="md_dark_onPrimary">#381E72</color>
+
+    <color name="md_dark_surface">#121212</color>
+    <color name="md_dark_onSurface">#E6E1E5</color>
+    <color name="md_dark_surfaceVariant">#49454F</color>
+    <color name="md_dark_outline">#938F99</color>
+
+    <!-- Para el BottomNavigation activo -->
+    <color name="md_dark_secondary">#CCC2DC</color>
+    <color name="md_dark_onSecondary">#332D41</color>
+</resources>

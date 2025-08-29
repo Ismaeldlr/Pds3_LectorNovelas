@@ -1,0 +1,23 @@
+<resources>
+    <string name="app_name">App Compra y Venta</string>
+
+    <string name="Item_Biblioteca">Biblioteca</string>
+    <string name="Item_Explorar">Explorar</string>
+    <string name="Item_Historial">Historial</string>
+    <string name="Item_Cuenta">Cuenta</string>
+
+    <string name="TituloRL">Titulo</string>
+
+    <string name="Ingresar_email">Ingresar con Email</string>
+    <string name="Ingresar_google">Ingresar con Google</string>
+
+    <string name="Txt_login">Login de usuario</string>
+    <string name="Et_email">Email</string>
+    <string name="Et_password">Password</string>
+    <string name="Btn_ingresar">Ingresar</string>
+    <string name="Txt_no_cuenta">No tienes una cuenta?</string>
+    <string name="Txt_registrarse">REGISTRARME</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>

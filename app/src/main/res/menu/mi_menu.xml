@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:id="@+id/Item_Biblioteca"
+        android:title = "@string/Item_Biblioteca"
+        android:icon="@drawable/ic_biblioteca"
+        />
+
+    <item android:id="@+id/Item_Explorar"
+        android:title = "@string/Item_Explorar"
+        android:icon="@drawable/ic_explorar"
+        />
+
+    <item android:id="@+id/Item_Historial"
+        android:title = "@string/Item_Historial"
+        android:icon="@drawable/ic_historial"
+        />
+
+    <item android:id="@+id/Item_Cuenta"
+        android:title = "@string/Item_Cuenta"
+        android:icon="@drawable/ic_cuenta"
+        />
+
+</menu>
