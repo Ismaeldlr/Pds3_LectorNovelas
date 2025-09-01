@@ -7,6 +7,8 @@ import com.example.lectornovelaselectronicos.Fragmentos.Explorar
 import com.example.lectornovelaselectronicos.Fragmentos.Historial
 import com.example.lectornovelaselectronicos.Fragmentos.Cuenta
 import com.example.lectornovelaselectronicos.databinding.ActivityMainBinding
+import android.content.Intent
+
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -33,6 +35,10 @@ class MainActivity : AppCompatActivity() {
                     true
                 }
                 R.id.Item_Cuenta->{
+                    val intent = Intent(this, Login_email::class.java) // Tu actividad Login_email
+                    startActivity(intent) // Esto abre la pantalla de login
+                    true
+
                     //VerFragmentCuenta()
                     true
                 }

@@ -17,6 +17,7 @@
     <string name="Btn_ingresar">Ingresar</string>
     <string name="Txt_no_cuenta">No tienes una cuenta?</string>
     <string name="Txt_registrarse">REGISTRARME</string>
+    <string name="Txt_registrarme">REGISTRARME</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
