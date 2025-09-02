@@ -96,5 +96,41 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
         </androidx.appcompat.widget.LinearLayoutCompat>
+
+        <!-- Divider "o continúa con" -->
+        <androidx.appcompat.widget.LinearLayoutCompat
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginTop="18dp">
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1"
+                android:background="#DDDDDD"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="  o continúa con  "
+                android:textSize="12sp"
+                android:textColor="#7A7A7A"/>
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1"
+                android:background="#DDDDDD"/>
+        </androidx.appcompat.widget.LinearLayoutCompat>
+
+        <!-- Botón de Google (oficial) -->
+        <com.google.android.gms.common.SignInButton
+            android:id="@+id/btnGoogle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"/>
+
     </androidx.appcompat.widget.LinearLayoutCompat>
 </RelativeLayout>
