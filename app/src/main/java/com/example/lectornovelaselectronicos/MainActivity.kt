@@ -8,75 +8,76 @@ import com.example.lectornovelaselectronicos.Fragmentos.Historial
 import com.example.lectornovelaselectronicos.Fragmentos.Cuenta
 import com.example.lectornovelaselectronicos.databinding.ActivityMainBinding
 import android.content.Intent
+import com.google.firebase.auth.FirebaseAuth
 
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
+    private lateinit var firebaseAuth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        //VerFragmentBiblioteca()
+        firebaseAuth = FirebaseAuth.getInstance()
+        firebaseAuth.signOut()
 
-        binding.BottomNV.setOnItemSelectedListener { Item ->
-            when (Item.itemId) {
-                R.id.Item_Biblioteca->{
-                    //VerFragmentBiblioteca()
-                    true
-                }
-                R.id.Item_Explorar->{
-                    //VerFragmentExplorar()
-                    true
-                }
-                R.id.Item_Historial->{
-                    //VerFragmentHistorial()
-                    true
-                }
-                R.id.Item_Cuenta->{
-                    val intent = Intent(this, Login_email::class.java) // Tu actividad Login_email
-                    startActivity(intent) // Esto abre la pantalla de login
-                    true
+        VerFragmentBiblioteca()
 
-                    //VerFragmentCuenta()
-                    true
+        binding.BottomNV.setOnItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.Item_Biblioteca -> {
+                    VerFragmentBiblioteca(); true
                 }
-                else->{
-                    false
+                R.id.Item_Explorar -> {
+                    VerFragmentExplorar(); true
                 }
+                R.id.Item_Historial -> {
+                    VerFragmentHistorial(); true
+                }
+                R.id.Item_Cuenta -> {
+                    if (firebaseAuth.currentUser == null) {
+                        startActivity(Intent(this, Login_email::class.java))
+                        false
+                    } else {
+                        VerFragmentCuenta(); true
+                    }
+                }
+                else -> false
             }
         }
     }
-    private fun VerFragmentBiblioteca(){
-        binding.TituloRL.setText("Biblioteca")
+
+    private fun VerFragmentBiblioteca() {
+        binding.TituloRL.text = "Biblioteca"
         val fragment = Biblioteca()
-        val fragmentTransition = supportFragmentManager.beginTransaction()
-        fragmentTransition.replace(binding.FragmentL1.id, fragment, "Biblioteca").commit()
-        fragmentTransition.commit()
+        supportFragmentManager.beginTransaction()
+            .replace(binding.FragmentL1.id, fragment, "Biblioteca")
+            .commit()
     }
 
-    private fun VerFragmentExplorar(){
-        binding.TituloRL.setText("Explorar")
+    private fun VerFragmentExplorar() {
+        binding.TituloRL.text = "Explorar"
         val fragment = Explorar()
-        val fragmentTransition = supportFragmentManager.beginTransaction()
-        fragmentTransition.replace(binding.FragmentL1.id, fragment, "Explorar").commit()
-        fragmentTransition.commit()
+        supportFragmentManager.beginTransaction()
+            .replace(binding.FragmentL1.id, fragment, "Explorar")
+            .commit()
     }
 
-    private fun VerFragmentHistorial(){
-        binding.TituloRL.setText("Historial")
+    private fun VerFragmentHistorial() {
+        binding.TituloRL.text = "Historial"
         val fragment = Historial()
-        val fragmentTransition = supportFragmentManager.beginTransaction()
-        fragmentTransition.replace(binding.FragmentL1.id, fragment, "Historial").commit()
-        fragmentTransition.commit()
+        supportFragmentManager.beginTransaction()
+            .replace(binding.FragmentL1.id, fragment, "Historial")
+            .commit()
     }
 
     private fun VerFragmentCuenta() {
-        binding.TituloRL.setText("Cuenta")
+        binding.TituloRL.text = "Cuenta"
         val fragment = Cuenta()
-        val fragmentTransition = supportFragmentManager.beginTransaction()
-        fragmentTransition.replace(binding.FragmentL1.id, fragment, "Cuenta").commit()
-        fragmentTransition.commit()
+        supportFragmentManager.beginTransaction()
+            .replace(binding.FragmentL1.id, fragment, "Cuenta")
+            .commit()
     }
 }

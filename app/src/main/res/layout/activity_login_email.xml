@@ -88,9 +88,10 @@
                 android:text="@string/Txt_no_cuenta"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
+
             <TextView
-                android:id="@+id/Txt_registrarme"
-                android:text="@string/Txt_registrarme"
+                android:id="@+id/Txt_registrarse"
+                android:text="@string/Txt_registrarse"
                 android:textStyle="bold"
                 android:layout_marginStart="8dp"
                 android:layout_width="wrap_content"
