@@ -1,14 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".Fragmentos.Cuenta">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
 
-</FrameLayout>
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/Btn_cerrar_sesion"
+        android:text="@string/Btn_cerrar_sesion"
+        android:textAllCaps="true"
+        android:layout_centerInParent="true"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/m_button_height">
+    </com.google.android.material.button.MaterialButton>
+
+</RelativeLayout>

@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "126828428118",
+    "firebase_url": "https://pds3-lectornovelas-default-rtdb.firebaseio.com",
     "project_id": "pds3-lectornovelas",
     "storage_bucket": "pds3-lectornovelas.firebasestorage.app"
   },
@@ -12,7 +13,20 @@
           "package_name": "com.example.lectornovelaselectronicos"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "126828428118-26jl0hge8hkh6buk0kuth8g09jbmb2sk.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.lectornovelaselectronicos",
+            "certificate_hash": "d16732c92d1b0ed10b5fbf5ecdaa6a01816342dd"
+          }
+        },
+        {
+          "client_id": "126828428118-b3mhkkia4jspa9f1igsk0hbpldgncm7h.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBzEavObdC8U6rHbTvVZSP9ARYU2rxqL_o"
@@ -20,7 +34,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "126828428118-b3mhkkia4jspa9f1igsk0hbpldgncm7h.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

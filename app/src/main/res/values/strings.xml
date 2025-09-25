@@ -20,6 +20,11 @@
     <string name="Txt_registro">REGISTRO</string>
     <string name="Et_r_password">Repetir Password</string>
 
+    <string name="Btn_cerrar_sesion">Cerrar Sesión</string>
+
+    <string name="default_web_client_id">1086064669492-d2ltad9r9115gibmj9mdg1k8to67rk3p.apps.googleusercontent.com</string>
+
+
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

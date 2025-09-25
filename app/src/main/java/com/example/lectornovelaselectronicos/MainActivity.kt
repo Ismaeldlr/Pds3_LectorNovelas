@@ -21,7 +21,6 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         firebaseAuth = FirebaseAuth.getInstance()
-        firebaseAuth.signOut()
 
         VerFragmentBiblioteca()
 
