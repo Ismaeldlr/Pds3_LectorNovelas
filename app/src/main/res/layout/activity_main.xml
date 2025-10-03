@@ -9,31 +9,10 @@
     android:background="?attr/colorSurface"
     tools:context=".MainActivity">
 
-    <RelativeLayout
-        android:id="@+id/ToolbarRL"
-        android:layout_width="match_parent"
-        android:layout_height="55dp"
-        android:background="?attr/colorSurface">
-
-        <TextView
-            android:id="@+id/TituloRL"
-            android:text="@string/TituloRL"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:textAppearance="?attr/textAppearanceTitleMedium"
-            android:textColor="?attr/colorOnSurface"/>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="?attr/colorOutline"
-            android:layout_alignParentBottom="true"/>
-    </RelativeLayout>
 
     <FrameLayout
         android:id="@+id/FragmentL1"
-        android:layout_below="@+id/ToolbarRL"
+        android:layout_marginTop="55dp"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@+id/View1"/>

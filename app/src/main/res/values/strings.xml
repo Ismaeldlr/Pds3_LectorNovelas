@@ -24,6 +24,26 @@
 
     <string name="default_web_client_id">1086064669492-d2ltad9r9115gibmj9mdg1k8to67rk3p.apps.googleusercontent.com</string>
 
+    <!-- Perfil / Cuenta -->
+    <string name="perfil_usuario">Perfil de usuario</string>
+    <string name="info_label">Información:</string>
+    <string name="nombres_label">Nombres:</string>
+    <string name="email_label">Email:</string>
+    <string name="fecha_nac_label">Fecha de nac:</string>
+    <string name="miembro_desde_label">Miembro desde:</string>
+    <string name="telefono_label">Teléfono:</string>
+    <string name="estado_cuenta_label">Estado de cuenta:</string>
+    <string name="opciones_label">Opciones</string>
+    <string name="editar_perfil">EDITAR PERFIL</string>
+    <string name="no_verificado">No verificado</string>
+
+    <!-- Placeholders (por defecto; reemplaza desde Kotlin si tienes datos reales) -->
+    <string name="placeholder_vacio"> </string>
+    <string name="placeholder_nombre_completo">Nombres completos</string>
+    <string name="placeholder_email_demo">email@dominio.com</string>
+    <string name="placeholder_fecha">dd/mm/aaaa</string>
+    <string name="placeholder_telefono">9999999999</string>
+
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

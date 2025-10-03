@@ -1,20 +1,18 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Tema base con DayNight para soportar ambos modos -->
-    <style name="Theme.LectorNovelasElectronicos" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Colores claros (se usan cuando NO está en night) -->
+    <!-- Base application theme, where customizations are defined. -->
+    <style name="Base.Theme.LectorNovelasElectronicos" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Colores claros (se usan cuando NO está en modo noche) -->
         <item name="colorPrimary">@color/md_light_primary</item>
         <item name="colorOnPrimary">@color/md_light_onPrimary</item>
-
+        <item name="colorSecondary">@color/md_light_secondary</item>
+        <item name="colorOnSecondary">@color/md_light_onSecondary</item>
         <item name="colorSurface">@color/md_light_surface</item>
         <item name="colorOnSurface">@color/md_light_onSurface</item>
         <item name="colorSurfaceVariant">@color/md_light_surfaceVariant</item>
         <item name="colorOutline">@color/md_light_outline</item>
 
-        <item name="colorSecondary">@color/md_light_secondary</item>
-        <item name="colorOnSecondary">@color/md_light_onSecondary</item>
-
-        <!-- Navegación inferior Material -->
+        <!-- Estilo para Navegación inferior Material -->
         <item name="bottomNavigationStyle">@style/Widget.NovelReader.BottomNavigation</item>
 
         <!-- Tipografía opcional -->
@@ -23,7 +21,7 @@
         <item name="textAppearanceTitleMedium">@style/TextAppearance.Material3.TitleMedium</item>
     </style>
 
-    <!-- Estilo para BottomNavigationView -->
+    <!-- Estilo personalizado para BottomNavigationView -->
     <style name="Widget.NovelReader.BottomNavigation" parent="Widget.Material3.BottomNavigationView">
         <item name="android:background">?attr/colorSurface</item>
         <item name="itemIconTint">?attr/colorOnSurface</item>

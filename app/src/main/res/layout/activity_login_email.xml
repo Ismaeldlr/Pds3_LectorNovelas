@@ -128,7 +128,7 @@
 
         <!-- Botón de Google (oficial) -->
         <com.google.android.gms.common.SignInButton
-            android:id="@+id/btnGoogle"
+            android:id="@+id/Btn_google"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"/>

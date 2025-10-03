@@ -7,15 +7,13 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.example.lectornovelaselectronicos.Login_email
 import com.example.lectornovelaselectronicos.R
+import com.example.lectornovelaselectronicos.Login_email
 import com.example.lectornovelaselectronicos.databinding.FragmentCuentaBinding
 import com.google.firebase.auth.FirebaseAuth
-
-
 class Cuenta : Fragment() {
 
-    private lateinit var  binding: FragmentCuentaBinding
+    private lateinit var binding: FragmentCuentaBinding
     private lateinit var firebaseAuth: FirebaseAuth
     private lateinit var nContext: Context
 
@@ -27,19 +25,30 @@ class Cuenta : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        binding = FragmentCuentaBinding.inflate(layoutInflater, container, false)
+    ): View {
+        binding = FragmentCuentaBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         firebaseAuth = FirebaseAuth.getInstance()
+
+        // Rellena la info si ya la tienes
+        val user = firebaseAuth.currentUser
+        binding.tvEmail.text = user?.email ?: "—"
+        binding.tvNombre.text = user?.displayName ?: "—"
+
         binding.BtnCerrarSesion.setOnClickListener {
             FirebaseAuth.getInstance().signOut()
             startActivity(Intent(nContext, Login_email::class.java))
             activity?.finish()
+        }
+
+        binding.btnEditarPerfil.setOnClickListener {
+            // Navega a tu pantalla de edición de perfil
+            // findNavController().navigate(R.id.action_cuenta_to_editarPerfil)
         }
     }
 }

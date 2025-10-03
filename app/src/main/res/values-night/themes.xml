@@ -1,23 +1,18 @@
 <resources>
 
-    <!-- Variante nocturna.-->
-    <style name="Theme.LectorNovelasElectronicos" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Colores oscuros -->
+    <!-- Variante nocturna del tema. Hereda de la base para mantener la consistencia. -->
+    <style name="Theme.LectorNovelasElectronicos" parent="Base.Theme.LectorNovelasElectronicos">
+        
+        <!-- Colores oscuros que sobreescriben los del tema base -->
         <item name="colorPrimary">@color/md_dark_primary</item>
         <item name="colorOnPrimary">@color/md_dark_onPrimary</item>
-
+        <item name="colorSecondary">@color/md_dark_secondary</item>
+        <item name="colorOnSecondary">@color/md_dark_onSecondary</item>
         <item name="colorSurface">@color/md_dark_surface</item>
         <item name="colorOnSurface">@color/md_dark_onSurface</item>
         <item name="colorSurfaceVariant">@color/md_dark_surfaceVariant</item>
         <item name="colorOutline">@color/md_dark_outline</item>
-
-        <item name="colorSecondary">@color/md_dark_secondary</item>
-        <item name="colorOnSecondary">@color/md_dark_onSecondary</item>
-
-        <item name="bottomNavigationStyle">@style/Widget.NovelReader.BottomNavigation</item>
-        <item name="android:fontFamily">sans-serif</item>
-        <item name="textAppearanceBodyLarge">@style/TextAppearance.Material3.BodyLarge</item>
-        <item name="textAppearanceTitleMedium">@style/TextAppearance.Material3.TitleMedium</item>
+        
     </style>
 
 </resources>

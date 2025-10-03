@@ -1,26 +1,31 @@
 package com.example.lectornovelaselectronicos
 
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.example.lectornovelaselectronicos.Fragmentos.Biblioteca
+import com.example.lectornovelaselectronicos.Fragmentos.Cuenta
 import com.example.lectornovelaselectronicos.Fragmentos.Explorar
 import com.example.lectornovelaselectronicos.Fragmentos.Historial
-import com.example.lectornovelaselectronicos.Fragmentos.Cuenta
 import com.example.lectornovelaselectronicos.databinding.ActivityMainBinding
-import android.content.Intent
 import com.google.firebase.auth.FirebaseAuth
 
-
 class MainActivity : AppCompatActivity() {
+
     private lateinit var binding: ActivityMainBinding
-    private lateinit var firebaseAuth: FirebaseAuth
+    private val auth: FirebaseAuth by lazy { FirebaseAuth.getInstance() }
+
+    // Listener para asegurarnos de que la sesión esté restaurada
+    private val authListener = FirebaseAuth.AuthStateListener { firebaseAuth ->
+        val u = firebaseAuth.currentUser
+        Log.d("AUTH", "AuthStateListener user=${u?.uid} email=${u?.email}")
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        firebaseAuth = FirebaseAuth.getInstance()
 
         VerFragmentBiblioteca()
 
@@ -36,11 +41,13 @@ class MainActivity : AppCompatActivity() {
                     VerFragmentHistorial(); true
                 }
                 R.id.Item_Cuenta -> {
-                    if (firebaseAuth.currentUser == null) {
-                        startActivity(Intent(this, Login_email::class.java))
-                        false
-                    } else {
+                    val user = auth.currentUser
+                    Log.d("AUTH", "BottomNV -> currentUser=${user?.email}")
+                    if (user != null) {
                         VerFragmentCuenta(); true
+                    } else {
+                        startActivity(Intent(this, Login_email::class.java))
+                        true
                     }
                 }
                 else -> false
@@ -48,8 +55,17 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun onStart() {
+        super.onStart()
+        auth.addAuthStateListener(authListener)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        auth.removeAuthStateListener(authListener)
+    }
+
     private fun VerFragmentBiblioteca() {
-        binding.TituloRL.text = "Biblioteca"
         val fragment = Biblioteca()
         supportFragmentManager.beginTransaction()
             .replace(binding.FragmentL1.id, fragment, "Biblioteca")
@@ -57,7 +73,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun VerFragmentExplorar() {
-        binding.TituloRL.text = "Explorar"
         val fragment = Explorar()
         supportFragmentManager.beginTransaction()
             .replace(binding.FragmentL1.id, fragment, "Explorar")
@@ -65,7 +80,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun VerFragmentHistorial() {
-        binding.TituloRL.text = "Historial"
         val fragment = Historial()
         supportFragmentManager.beginTransaction()
             .replace(binding.FragmentL1.id, fragment, "Historial")
@@ -73,7 +87,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun VerFragmentCuenta() {
-        binding.TituloRL.text = "Cuenta"
         val fragment = Cuenta()
         supportFragmentManager.beginTransaction()
             .replace(binding.FragmentL1.id, fragment, "Cuenta")
