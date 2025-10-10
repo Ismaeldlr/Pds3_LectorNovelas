@@ -20,29 +20,28 @@
     <string name="Txt_registro">REGISTRO</string>
     <string name="Et_r_password">Repetir Password</string>
 
-    <string name="Btn_cerrar_sesion">Cerrar Sesión</string>
-
     <string name="default_web_client_id">1086064669492-d2ltad9r9115gibmj9mdg1k8to67rk3p.apps.googleusercontent.com</string>
 
-    <!-- Perfil / Cuenta -->
-    <string name="perfil_usuario">Perfil de usuario</string>
-    <string name="info_label">Información:</string>
-    <string name="nombres_label">Nombres:</string>
-    <string name="email_label">Email:</string>
-    <string name="fecha_nac_label">Fecha de nac:</string>
-    <string name="miembro_desde_label">Miembro desde:</string>
-    <string name="telefono_label">Teléfono:</string>
-    <string name="estado_cuenta_label">Estado de cuenta:</string>
-    <string name="opciones_label">Opciones</string>
-    <string name="editar_perfil">EDITAR PERFIL</string>
-    <string name="no_verificado">No verificado</string>
+    <!-- Fragment Cuenta -->
+    <string name="Txt_perfil">Perfil de Usuario</string>
+    <string name="Txt_informacion">Informacion:</string>
+    <string name="Txt_nombres">Nombre:</string>
+    <string name="Tv_nombres">Nombres Completos</string>
+    <string name="Txt_email">Email:</string>
+    <string name="Tv_email">email@dominio.com</string>'
+    <string name="Txt_fecha_nac">Fecha de Nacimiento:</string>
+    <string name="Tv_fecha_nac">DD/MM/AAAA</string>
+    <string name="Txt_miembro">Miembro desde:</string>
+    <string name="Tv_miembro">DD/MM/AAAA</string>
+    <string name="Txt_telefono">Telefono:</string>
+    <string name="Tv_telefono">XXX-XXX-XXXX</string>
+    <string name="Txt_estado_cuenta">Estado de Cuenta:</string>
+    <string name="Tv_estado_cuenta">No verificado</string>
 
-    <!-- Placeholders (por defecto; reemplaza desde Kotlin si tienes datos reales) -->
-    <string name="placeholder_vacio"> </string>
-    <string name="placeholder_nombre_completo">Nombres completos</string>
-    <string name="placeholder_email_demo">email@dominio.com</string>
-    <string name="placeholder_fecha">dd/mm/aaaa</string>
-    <string name="placeholder_telefono">9999999999</string>
+    <string name="TxtOpciones">Opciones</string>
+    <string name="Btn_editar_perfil">Editar Perfil</string>
+    <string name="Btn_cerrar_sesion">Cerrar Sesión</string>
+    <string name="Btn_eliminar_cuenta">Eliminar Cuenta</string>
 
 
     <!-- TODO: Remove or change this placeholder text -->

@@ -14,6 +14,7 @@ playServicesBase = "18.7.2"
 firebaseAuth= "24.0.1"
 firebaseDatabase="22.0.0"
 loginGoogleV = "21.4.0"
+glideV = "5.0.5"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -28,6 +29,7 @@ play-services-base = { group = "com.google.android.gms", name = "play-services-b
 firebaseAuth = {group= "com.google.firebase", name = "firebase-auth", version.ref = "firebaseAuth"}
 firebaseDatabase = {group= "com.google.firebase", name = "firebase-database", version.ref = "firebaseDatabase"}
 loginGoogle = {group= "com.google.android.gms", name = "play-services-auth", version.ref = "loginGoogleV"}
+glide = {group= "com.github.bumptech.glide", name = "glide", version.ref = "glideV"}
 
 
 [plugins]

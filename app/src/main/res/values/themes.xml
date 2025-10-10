@@ -21,7 +21,11 @@
         <item name="textAppearanceTitleMedium">@style/TextAppearance.Material3.TitleMedium</item>
     </style>
 
-    <!-- Estilo personalizado para BottomNavigationView -->
+    <!-- TEMA FINAL DE LA APLICACIÓN: Hereda de la base. ESTA ERA LA PARTE QUE FALTABA. -->
+    <style name="Theme.LectorNovelasElectronicos" parent="Base.Theme.LectorNovelasElectronicos" />
+
+
+    <!-- Estilo personalizado para BottomNavigationView, corregido para usar atributos del tema. -->
     <style name="Widget.NovelReader.BottomNavigation" parent="Widget.Material3.BottomNavigationView">
         <item name="android:background">?attr/colorSurface</item>
         <item name="itemIconTint">?attr/colorOnSurface</item>

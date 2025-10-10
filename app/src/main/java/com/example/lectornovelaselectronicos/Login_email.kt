@@ -7,6 +7,7 @@ import android.util.Patterns
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import com.example.lectornovelaselectronicos.Constantes
 import com.example.lectornovelaselectronicos.databinding.ActivityLoginEmailBinding
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
