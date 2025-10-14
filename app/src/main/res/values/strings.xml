@@ -22,6 +22,13 @@
 
     <string name="default_web_client_id">1086064669492-d2ltad9r9115gibmj9mdg1k8to67rk3p.apps.googleusercontent.com</string>
 
+    <!-- Fragment Biblioteca -->
+    <string name="search">Buscar</string>
+    <string name="sort">Ordenar</string>
+    <string name="more">Más</string>
+    <string name="add_book">Agregar libro</string>
+
+
     <!-- Fragment Cuenta -->
     <string name="Txt_perfil">Perfil de Usuario</string>
     <string name="Txt_informacion">Informacion:</string>

@@ -1,0 +1,54 @@
+package com.example.lectornovelaselectronicos.Fragmentos.Biblioteca_Items
+
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.example.lectornovelaselectronicos.R
+
+class BookAdapter(
+    private val onBookClick: (BookItem) -> Unit
+) : RecyclerView.Adapter<BookAdapter.VH>() {
+
+    private val items = mutableListOf<BookItem>()
+
+    fun submit(list: List<BookItem>) {
+        items.clear()
+        items.addAll(list)
+        notifyDataSetChanged()
+    }
+
+    class VH(v: View) : RecyclerView.ViewHolder(v) {
+        val img: ImageView = v.findViewById(R.id.imgCover)
+        val title: TextView = v.findViewById(R.id.tvTitle)
+        val badge: TextView = v.findViewById(R.id.tvBadge)
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
+        val view = LayoutInflater.from(parent.context)
+            .inflate(R.layout.item_book_card, parent, false)
+        return VH(view)
+    }
+
+    override fun onBindViewHolder(h: VH, position: Int) {
+        val book = items[position]
+        h.title.text = book.title
+        h.badge.text = book.chapters.toString()
+
+        // Asignar el listener al item completo
+        h.itemView.setOnClickListener {
+            onBookClick(book)
+        }
+
+        // Cargar la imagen de portada con Glide
+        Glide.with(h.img)
+            .load(book.coverUrl)
+            .placeholder(R.drawable.placeholder_cover) // Usamos un placeholder que ya existe
+            .into(h.img)
+    }
+
+    override fun getItemCount(): Int = items.size
+}

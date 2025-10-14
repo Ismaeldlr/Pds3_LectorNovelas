@@ -106,10 +106,6 @@ class Cuenta : Fragment() {
                 override fun onCancelled(error: DatabaseError) {
 
                 }
-
-
-            }
-            )
-
+            })
     }
 }

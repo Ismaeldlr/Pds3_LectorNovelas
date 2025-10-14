@@ -4,4 +4,7 @@
     <dimen name="m_toolbar_height">55dp</dimen>
     <dimen name="m_button_height">60dp</dimen>
 
+    <dimen name="screen_padding">12dp</dimen>
+    <dimen name="grid_gap">12dp</dimen>
+
 </resources>
