@@ -23,9 +23,14 @@ class Biblioteca : Fragment() {
     private lateinit var toolbar: androidx.appcompat.widget.Toolbar
 
     // Inicializar el adapter pasándole la acción a ejecutar al hacer clic
-    private val adapter = BookAdapter { book ->
-        Toast.makeText(requireContext(), "Has pulsado en: ${book.title}", Toast.LENGTH_SHORT).show()
-    }
+    private val adapter = BookAdapter(
+        onBookClick = { book ->
+            Toast.makeText(requireContext(), "Has pulsado en: ${book.title}", Toast.LENGTH_SHORT).show()
+        },
+        onDeleteClick = { book ->
+            confirmDelete(book)
+        }
+    )
 
     private val dbRef: DatabaseReference by lazy {
         FirebaseDatabase.getInstance().getReference("books")
@@ -34,6 +39,7 @@ class Biblioteca : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         return inflater.inflate(R.layout.fragment_biblioteca, container, false)
     }
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -117,6 +123,22 @@ class Biblioteca : Fragment() {
                 if (title.isNotEmpty()) {
                     val book = BookItem(title = title, chapters = chapters, coverUrl = cover)
                     dbRef.push().setValue(book)
+                }
+                d.dismiss()
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
+    }
+
+    private fun confirmDelete(book: BookItem) {
+        val ctx = requireContext()
+        AlertDialog.Builder(ctx)
+            .setTitle("Borrar libro")
+            .setMessage("¿Estás seguro que quieres borrar \"${book.title}\"?")
+            .setPositiveButton("Sí, borrar") { d, _ ->
+                val key = book.id
+                if (!key.isNullOrEmpty()) {
+                    dbRef.child(key).removeValue()
                 }
                 d.dismiss()
             }

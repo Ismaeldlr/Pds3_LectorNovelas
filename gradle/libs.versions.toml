@@ -15,6 +15,7 @@ firebaseAuth= "24.0.1"
 firebaseDatabase="22.0.0"
 loginGoogleV = "21.4.0"
 glideV = "5.0.5"
+ccpV="2.7.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -30,7 +31,7 @@ firebaseAuth = {group= "com.google.firebase", name = "firebase-auth", version.re
 firebaseDatabase = {group= "com.google.firebase", name = "firebase-database", version.ref = "firebaseDatabase"}
 loginGoogle = {group= "com.google.android.gms", name = "play-services-auth", version.ref = "loginGoogleV"}
 glide = {group= "com.github.bumptech.glide", name = "glide", version.ref = "glideV"}
-
+ccp = {group= "com.hbb20", name = "ccp", version.ref = "ccpV"}
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

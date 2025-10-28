@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import com.bumptech.glide.Glide
 import com.example.lectornovelaselectronicos.Constantes
+import com.example.lectornovelaselectronicos.Fragmentos.Cuenta_Items.EditarPerfil
 import com.example.lectornovelaselectronicos.R
 import com.example.lectornovelaselectronicos.Login_email
 import com.example.lectornovelaselectronicos.databinding.FragmentCuentaBinding
@@ -45,6 +46,11 @@ class Cuenta : Fragment() {
         firebaseAuth = FirebaseAuth.getInstance()
 
         leerInfo()
+
+        binding.BtnEditarPerfil.setOnClickListener {
+            val intent = Intent(mContext, EditarPerfil::class.java)
+            startActivity(intent)
+        }
 
         binding.BtnCerrarSesion.setOnClickListener {
             firebaseAuth.signOut()

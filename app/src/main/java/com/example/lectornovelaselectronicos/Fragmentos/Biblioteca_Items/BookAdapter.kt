@@ -3,14 +3,17 @@ package com.example.lectornovelaselectronicos.Fragmentos.Biblioteca_Items
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.PopupMenu
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.lectornovelaselectronicos.R
 
 class BookAdapter(
-    private val onBookClick: (BookItem) -> Unit
+    private val onBookClick: (BookItem) -> Unit = {},
+    private val onDeleteClick: (BookItem) -> Unit = {}
 ) : RecyclerView.Adapter<BookAdapter.VH>() {
 
     private val items = mutableListOf<BookItem>()
@@ -25,6 +28,7 @@ class BookAdapter(
         val img: ImageView = v.findViewById(R.id.imgCover)
         val title: TextView = v.findViewById(R.id.tvTitle)
         val badge: TextView = v.findViewById(R.id.tvBadge)
+        val more: ImageButton = v.findViewById(R.id.btnMore)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
@@ -38,16 +42,28 @@ class BookAdapter(
         h.title.text = book.title
         h.badge.text = book.chapters.toString()
 
-        // Asignar el listener al item completo
         h.itemView.setOnClickListener {
-            onBookClick(book)
+            val idx = h.bindingAdapterPosition
+            if (idx != RecyclerView.NO_POSITION) onBookClick(items[idx])
         }
 
-        // Cargar la imagen de portada con Glide
-        Glide.with(h.img)
-            .load(book.coverUrl)
-            .placeholder(R.drawable.placeholder_cover) // Usamos un placeholder que ya existe
-            .into(h.img)
+        // Menú de 3 puntos
+        h.more.setOnClickListener { view ->
+            val popup = PopupMenu(view.context, view)
+            popup.menu.add(0, R.id.action_delete_card, 0, "Borrar libro")
+            popup.setOnMenuItemClickListener { menuItem ->
+                if (menuItem.itemId == R.id.action_delete_card) {
+                    val idx = h.bindingAdapterPosition
+                    if (idx != RecyclerView.NO_POSITION) onDeleteClick(items[idx])
+                    true
+                } else false
+            }
+            popup.show()
+        }
+
+         Glide.with(h.img).load(book.coverUrl)
+             .placeholder(R.drawable.placeholder_cover)
+             .into(h.img)
     }
 
     override fun getItemCount(): Int = items.size

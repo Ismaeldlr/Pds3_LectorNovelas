@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="10dp"
+    tools:context=".Fragmentos.Cuenta_Items.EditarPerfil">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/Txt_editar_p"
+            android:text="@string/Txt_editar_perfil"
+            android:gravity="center"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_marginTop="15dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <!--Imágen de perfil-->
+        <RelativeLayout
+            android:id="@+id/perfilURL"
+            android:layout_below="@+id/Txt_editar_p"
+            android:layout_marginTop="15dp"
+            android:layout_centerHorizontal="true"
+            android:layout_width="120dp"
+            android:layout_height="120dp">
+            <ImageView
+                android:id="@+id/img_perfil"
+                android:src="@drawable/img_perfil"
+                android:scaleType="centerCrop"
+                android:layout_width="120dp"
+                android:layout_height="120dp"/>
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/FABCambiarImg"
+                android:layout_alignParentEnd="true"
+                android:src="@drawable/ic_selec_imagen"
+                app:fabSize="mini"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="floatingactionbutton"/>
+        </RelativeLayout>
+
+        <!--Nombres-->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/TILNombres"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/perfilURL"
+            android:layout_marginTop="10dp"
+            app:boxCornerRadiusTopStart="8dp"
+            app:boxCornerRadiusBottomEnd="8dp"
+            app:boxCornerRadiusTopEnd="8dp"
+            app:boxCornerRadiusBottomStart="8dp">
+
+            <EditText
+                android:id="@+id/Et_nombres"
+                android:text="@string/Et_nombres"
+                android:inputType="textPersonName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!--Fecha de nacimiento-->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/TIL_Nac"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/TILNombres"
+            android:layout_marginTop="10dp"
+            app:boxCornerRadiusTopStart="8dp"
+            app:boxCornerRadiusBottomEnd="8dp"
+            app:boxCornerRadiusTopEnd="8dp"
+            app:boxCornerRadiusBottomStart="8dp">
+
+            <EditText
+                android:id="@+id/Et_f_nac"
+                android:text="@string/Et_f_nac"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Codigo de pais + Numero Telefonico -->
+        <RelativeLayout
+            android:id="@+id/RL_Cod_Tel"
+            android:layout_below="@id/TIL_Nac"
+            android:layout_marginTop="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <com.hbb20.CountryCodePicker
+                android:id="@+id/selectorCod"
+                android:gravity="center"
+                android:layout_centerVertical="true"
+                app:ccp_rememberLastSelection="true"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <!--Fecha de nacimiento-->
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@+id/selectorCod"
+                app:boxCornerRadiusTopStart="8dp"
+                app:boxCornerRadiusBottomEnd="8dp"
+                app:boxCornerRadiusTopEnd="8dp"
+                app:boxCornerRadiusBottomStart="8dp">
+
+                <EditText
+                    android:id="@+id/Et_telefono"
+                    android:text="@string/Et_telefono"
+                    android:inputType="number"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+            </com.google.android.material.textfield.TextInputLayout>
+        </RelativeLayout>
+
+        <!--  -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/Btn_actualizar"
+            android:text="@string/Btn_actualizar"
+            android:layout_below="@+id/RL_Cod_Tel"
+            android:textAllCaps="true"
+            android:layout_centerInParent="true"
+            android:layout_marginTop="15dp"
+            app:icon="@drawable/ic_editar"
+            android:layout_width="200dp"
+            android:layout_height="@dimen/m_button_height"/>
+
+    </RelativeLayout>
+</RelativeLayout>
