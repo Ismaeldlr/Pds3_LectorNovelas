@@ -28,6 +28,23 @@
     <string name="more">Más</string>
     <string name="add_book">Agregar libro</string>
 
+    <!-- Fragment Explorar -->
+
+    <string name="explorar_libros_digitales">Explorar libros digitales</string>
+    <string name="proximamente">Próximamente</string>
+
+    <string name="explorar_bibliotecas_cerca">Explorar bibliotecas cerca de mí</string>
+    <string name="buscar_ahora">Buscar ahora</string>
+    <string name="pidiendo_permiso_ubicacion">Solicitando permiso de ubicación…</string>
+    <string name="permiso_denegado">Permiso de ubicación denegado</string>
+    <string name="buscando_bibliotecas">Buscando bibliotecas cercanas…</string>
+    <string name="sin_resultados">No se encontraron bibliotecas cercanas</string>
+    <string name="error_generico">Ocurrió un error. Intenta de nuevo.</string>
+    <string name="distancia_km">%1$.2f km</string>
+    <string name="abrir_en_mapas">Abrir en Maps</string>
+    <string name="google_maps_key">TU_API_KEY</string>
+    <string name="mi_ubicacion">Mi ubicación</string>
+
 
     <!-- Fragment Cuenta -->
     <string name="Txt_perfil">Perfil de Usuario</string>
