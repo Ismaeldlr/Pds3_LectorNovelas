@@ -9,7 +9,9 @@ import android.widget.PopupMenu
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import androidx.core.view.isVisible
 import com.example.lectornovelaselectronicos.R
+import java.util.Locale
 
 class BookAdapter(
     private val onBookClick: (BookItem) -> Unit = {},
@@ -28,6 +30,8 @@ class BookAdapter(
         val img: ImageView = v.findViewById(R.id.imgCover)
         val title: TextView = v.findViewById(R.id.tvTitle)
         val badge: TextView = v.findViewById(R.id.tvBadge)
+        val status: TextView = v.findViewById(R.id.tvStatus)
+        val language: TextView = v.findViewById(R.id.tvLanguage)
         val more: ImageButton = v.findViewById(R.id.btnMore)
     }
 
@@ -41,12 +45,19 @@ class BookAdapter(
         val book = items[position]
         h.title.text = book.title
 
-        if (book.chapters > 0) {
-            h.badge.visibility = View.VISIBLE
-            h.badge.text = book.chapters.toString()
-        } else {
-            h.badge.visibility = View.GONE
-        }
+        val chapterCount = book.effectiveChapterCount
+        h.badge.isVisible = chapterCount > 0
+        h.badge.text = if (chapterCount > 0) {
+            h.itemView.context.getString(R.string.card_badge_chapters, chapterCount)
+        } else ""
+
+        val normalizedStatus = book.status.trim()
+        h.status.isVisible = normalizedStatus.isNotEmpty()
+        h.status.text = normalizedStatus.uppercase(Locale.getDefault())
+
+        val normalizedLanguage = book.language.trim()
+        h.language.isVisible = normalizedLanguage.isNotEmpty()
+        h.language.text = normalizedLanguage.uppercase(Locale.getDefault())
 
         h.itemView.setOnClickListener {
             val idx = h.bindingAdapterPosition

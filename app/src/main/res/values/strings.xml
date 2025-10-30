@@ -34,15 +34,18 @@
     <string name="borrar_libro_titulo">Quitar "%1$s"</string>
     <string name="borrar_libro_confirmacion">Este libro se quitará solo de tu biblioteca personal.</string>
     <string name="formato_autor">Autor: %1$s</string>
-    <string name="formato_capitulos">Capítulos: %1$d</string>
-    <string name="sin_detalles_disponibles">No hay información adicional disponible.</string>
+    <string name="card_badge_chapters">%1$d cap.</string>
     <string name="cerrar">Cerrar</string>
     <string name="titulo_dialogo_agregar">Agregar libro al catálogo</string>
     <string name="hint_titulo">Título</string>
     <string name="hint_autor">Autor</string>
-    <string name="hint_capitulos">Capítulos</string>
+    <string name="hint_chapter_count">Cantidad de capítulos</string>
     <string name="hint_url_portada">URL portada (opcional)</string>
     <string name="hint_descripcion">Descripción</string>
+    <string name="hint_idioma">Idioma original (es, en, zh…)</string>
+    <string name="hint_estado">Estado (ongoing, completed, hiatus, dropped)</string>
+    <string name="hint_generos">Géneros (separa con comas)</string>
+    <string name="hint_etiquetas">Etiquetas / tags (separa con comas)</string>
     <string name="guardar">Guardar</string>
     <string name="cancelar">Cancelar</string>
     <string name="error_titulo_vacio">El título es obligatorio.</string>
@@ -54,6 +57,20 @@
     <string name="error_cargar_catalogo">No se pudo cargar el catálogo (%1$s)</string>
     <string name="agregar_biblioteca">Agregar a mi biblioteca</string>
     <string name="quitar_biblioteca">Quitar de mi biblioteca</string>
+
+    <string name="book_detail_genres">Géneros</string>
+    <string name="book_detail_tags">Etiquetas</string>
+    <string name="book_detail_description">Descripción</string>
+    <string name="book_detail_table_of_contents">Tabla de contenidos</string>
+    <string name="book_detail_no_description">Sin descripción disponible por el momento.</string>
+    <string name="book_detail_no_chapters">Todavía no hay capítulos listados.</string>
+    <string name="book_detail_author">Autor: %1$s</string>
+    <string name="book_detail_login_to_save">Inicia sesión para guardar</string>
+    <string name="book_detail_chapter_placeholder">Capítulo %1$d</string>
+    <plurals name="book_detail_chapter_count">
+        <item quantity="one">%d capítulo</item>
+        <item quantity="other">%d capítulos</item>
+    </plurals>
 
     <string name="pidiendo_permiso_ubicacion">Solicitando permiso de ubicación…</string>
     <string name="permiso_denegado">Permiso de ubicación denegado</string>
@@ -101,8 +118,6 @@
     <string name="title_activity_maps">MapsActivity</string>
 
     <!-- Descripciones demo -->
-    <string name="demo_shaman_king">Un clásico shōnen sobre chamanes que luchan por convertirse en el Shaman King.</string>
-    <string name="demo_gachiakuta">Una historia de acción trepidante ambientada en un mundo de desechos y supervivencia.</string>
-    <string name="demo_dgrayman">Exorcistas y akuma se enfrentan en esta aventura oscura y llena de misterio.</string>
-    <string name="demo_chainsaw">Demonios, acción desenfrenada y un antihéroe inolvidable.</string>
+    <string name="demo_clockwork_archivist">Un aprendiz de archivista descubre secretos de autómatas mientras cataloga una biblioteca embrujada.</string>
+    <string name="demo_azure_dynasty">Un prodigio de los VRMMO regresa tras cinco años para unir a los gremios antes de un parche catastrófico.</string>
 </resources>

@@ -10,6 +10,29 @@ data class BookItem(
     var title: String = "",
     var author: String = "",
     var description: String = "",
-    var chapters: Int = 0,
-    var coverUrl: String? = null
+    var coverUrl: String? = null,
+    var language: String = "",
+    var status: String = "",
+    var genres: List<String> = emptyList(),
+    var tags: List<String> = emptyList(),
+    var chapterCount: Int = 0,
+    var chapters: Map<String, ChapterSummary>? = null,
 )
+
+data class ChapterSummary(
+    var index: Int = 0,
+    var title: String = "",
+    var releaseDate: String? = null,
+)
+
+val BookItem.effectiveChapterCount: Int
+    get() = when {
+        chapterCount > 0 -> chapterCount
+        chapters?.isNotEmpty() == true -> chapters!!.values.size
+        else -> 0
+    }
+
+val BookItem.sortedChapters: List<ChapterSummary>
+    get() = chapters?.values
+        ?.sortedWith(compareBy<ChapterSummary> { it.index }.thenBy { it.title })
+        ?: emptyList()
