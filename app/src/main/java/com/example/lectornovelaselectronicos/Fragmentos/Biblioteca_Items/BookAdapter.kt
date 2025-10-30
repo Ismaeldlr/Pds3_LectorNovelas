@@ -5,15 +5,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.ImageView
-import android.widget.TextView
 import android.widget.PopupMenu
+import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.lectornovelaselectronicos.R
 
 class BookAdapter(
     private val onBookClick: (BookItem) -> Unit = {},
-    private val onDeleteClick: (BookItem) -> Unit = {}
+    private val onDeleteClick: (BookItem) -> Unit = {},
 ) : RecyclerView.Adapter<BookAdapter.VH>() {
 
     private val items = mutableListOf<BookItem>()
@@ -40,17 +40,23 @@ class BookAdapter(
     override fun onBindViewHolder(h: VH, position: Int) {
         val book = items[position]
         h.title.text = book.title
-        h.badge.text = book.chapters.toString()
+
+        if (book.chapters > 0) {
+            h.badge.visibility = View.VISIBLE
+            h.badge.text = book.chapters.toString()
+        } else {
+            h.badge.visibility = View.GONE
+        }
 
         h.itemView.setOnClickListener {
             val idx = h.bindingAdapterPosition
             if (idx != RecyclerView.NO_POSITION) onBookClick(items[idx])
         }
 
-        // Menú de 3 puntos
+        h.more.visibility = View.VISIBLE
         h.more.setOnClickListener { view ->
             val popup = PopupMenu(view.context, view)
-            popup.menu.add(0, R.id.action_delete_card, 0, "Borrar libro")
+            popup.menu.add(0, R.id.action_delete_card, 0, view.context.getString(R.string.borrar_libro))
             popup.setOnMenuItemClickListener { menuItem ->
                 if (menuItem.itemId == R.id.action_delete_card) {
                     val idx = h.bindingAdapterPosition
@@ -61,9 +67,9 @@ class BookAdapter(
             popup.show()
         }
 
-         Glide.with(h.img).load(book.coverUrl)
-             .placeholder(R.drawable.placeholder_cover)
-             .into(h.img)
+        Glide.with(h.img).load(book.coverUrl)
+            .placeholder(R.drawable.placeholder_cover)
+            .into(h.img)
     }
 
     override fun getItemCount(): Int = items.size

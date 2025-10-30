@@ -27,14 +27,34 @@
     <string name="sort">Ordenar</string>
     <string name="more">Más</string>
     <string name="add_book">Agregar libro</string>
+    <string name="titulo_biblioteca">Mi biblioteca</string>
+    <string name="mi_biblioteca_vacia">Tu biblioteca aún no tiene títulos.</string>
+    <string name="inicia_sesion_para_guardar">Inicia sesión para guardar libros en tu biblioteca.</string>
+    <string name="borrar_libro">Quitar libro</string>
+    <string name="borrar_libro_titulo">Quitar "%1$s"</string>
+    <string name="borrar_libro_confirmacion">Este libro se quitará solo de tu biblioteca personal.</string>
+    <string name="formato_autor">Autor: %1$s</string>
+    <string name="formato_capitulos">Capítulos: %1$d</string>
+    <string name="sin_detalles_disponibles">No hay información adicional disponible.</string>
+    <string name="cerrar">Cerrar</string>
+    <string name="titulo_dialogo_agregar">Agregar libro al catálogo</string>
+    <string name="hint_titulo">Título</string>
+    <string name="hint_autor">Autor</string>
+    <string name="hint_capitulos">Capítulos</string>
+    <string name="hint_url_portada">URL portada (opcional)</string>
+    <string name="hint_descripcion">Descripción</string>
+    <string name="guardar">Guardar</string>
+    <string name="cancelar">Cancelar</string>
+    <string name="error_titulo_vacio">El título es obligatorio.</string>
 
     <!-- Fragment Explorar -->
+    <string name="title_explorar">Explorar</string>
+    <string name="catalogo_vacio">El catálogo público todavía no tiene títulos.</string>
+    <string name="abrir_mapa">Bibliotecas cercanas</string>
+    <string name="error_cargar_catalogo">No se pudo cargar el catálogo (%1$s)</string>
+    <string name="agregar_biblioteca">Agregar a mi biblioteca</string>
+    <string name="quitar_biblioteca">Quitar de mi biblioteca</string>
 
-    <string name="explorar_libros_digitales">Explorar libros digitales</string>
-    <string name="proximamente">Próximamente</string>
-
-    <string name="explorar_bibliotecas_cerca">Explorar bibliotecas cerca de mí</string>
-    <string name="buscar_ahora">Buscar ahora</string>
     <string name="pidiendo_permiso_ubicacion">Solicitando permiso de ubicación…</string>
     <string name="permiso_denegado">Permiso de ubicación denegado</string>
     <string name="buscando_bibliotecas">Buscando bibliotecas cercanas…</string>
@@ -47,26 +67,13 @@
     <string name="tipo_biblioteca">(Biblioteca)</string>
     <string name="tipo_libreria">(Librería)</string>
 
-    <string name="btn_explorar_libros">Explorar libros</string>
-    <string name="titulo_tienda">Tienda de libros</string>
-    <string name="titulo_mi_biblioteca">Mi biblioteca</string>
-    <string name="ver_preview">Ver preview</string>
-    <string name="agregar_biblioteca">Agregar a mi biblioteca</string>
-    <string name="quitar_biblioteca">Quitar de mi biblioteca</string>
-    <string name="formato_autor">Autor: %1$s</string>
-    <string name="preview_formato">%1$s — %2$s\n\n%3$s</string>
-    <string name="agregado_biblioteca">%1$s agregado a tu biblioteca</string>
-    <string name="removido_biblioteca">%1$s removido de tu biblioteca</string>
-
-
-
     <!-- Fragment Cuenta -->
     <string name="Txt_perfil">Perfil de Usuario</string>
     <string name="Txt_informacion">Informacion:</string>
     <string name="Txt_nombres">Nombre:</string>
     <string name="Tv_nombres">Nombres Completos</string>
     <string name="Txt_email">Email:</string>
-    <string name="Tv_email">email@dominio.com</string>'
+    <string name="Tv_email">email@dominio.com</string>
     <string name="Txt_fecha_nac">Fecha de Nacimiento:</string>
     <string name="Tv_fecha_nac">DD/MM/AAAA</string>
     <string name="Txt_miembro">Miembro desde:</string>
@@ -92,4 +99,10 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="title_activity_maps">MapsActivity</string>
+
+    <!-- Descripciones demo -->
+    <string name="demo_shaman_king">Un clásico shōnen sobre chamanes que luchan por convertirse en el Shaman King.</string>
+    <string name="demo_gachiakuta">Una historia de acción trepidante ambientada en un mundo de desechos y supervivencia.</string>
+    <string name="demo_dgrayman">Exorcistas y akuma se enfrentan en esta aventura oscura y llena de misterio.</string>
+    <string name="demo_chainsaw">Demonios, acción desenfrenada y un antihéroe inolvidable.</string>
 </resources>
