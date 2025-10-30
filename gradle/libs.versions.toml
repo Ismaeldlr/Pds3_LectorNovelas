@@ -16,6 +16,8 @@ firebaseDatabase="22.0.0"
 loginGoogleV = "21.4.0"
 glideV = "5.0.5"
 ccpV="2.7.0"
+googleAndroidLibrariesMapsplatformSecretsGradlePlugin = "2.0.1"
+playServicesMaps = "19.2.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -32,8 +34,10 @@ firebaseDatabase = {group= "com.google.firebase", name = "firebase-database", ve
 loginGoogle = {group= "com.google.android.gms", name = "play-services-auth", version.ref = "loginGoogleV"}
 glide = {group= "com.github.bumptech.glide", name = "glide", version.ref = "glideV"}
 ccp = {group= "com.hbb20", name = "ccp", version.ref = "ccpV"}
+play-services-maps = { group = "com.google.android.gms", name = "play-services-maps", version.ref = "playServicesMaps" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 googleService = { id = "com.google.gms.google-services", version.ref = "googleServicesversion" }
+google-android-libraries-mapsplatform-secrets-gradle-plugin = { id = "com.google.android.libraries.mapsplatform.secrets-gradle-plugin", version.ref = "googleAndroidLibrariesMapsplatformSecretsGradlePlugin" }

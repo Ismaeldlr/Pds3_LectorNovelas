@@ -44,6 +44,20 @@
     <string name="abrir_en_mapas">Abrir en Maps</string>
     <string name="google_maps_key">TU_API_KEY</string>
     <string name="mi_ubicacion">Mi ubicación</string>
+    <string name="tipo_biblioteca">(Biblioteca)</string>
+    <string name="tipo_libreria">(Librería)</string>
+
+    <string name="btn_explorar_libros">Explorar libros</string>
+    <string name="titulo_tienda">Tienda de libros</string>
+    <string name="titulo_mi_biblioteca">Mi biblioteca</string>
+    <string name="ver_preview">Ver preview</string>
+    <string name="agregar_biblioteca">Agregar a mi biblioteca</string>
+    <string name="quitar_biblioteca">Quitar de mi biblioteca</string>
+    <string name="formato_autor">Autor: %1$s</string>
+    <string name="preview_formato">%1$s — %2$s\n\n%3$s</string>
+    <string name="agregado_biblioteca">%1$s agregado a tu biblioteca</string>
+    <string name="removido_biblioteca">%1$s removido de tu biblioteca</string>
+
 
 
     <!-- Fragment Cuenta -->
@@ -77,4 +91,5 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_maps">MapsActivity</string>
 </resources>

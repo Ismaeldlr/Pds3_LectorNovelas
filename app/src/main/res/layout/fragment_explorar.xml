@@ -26,12 +26,13 @@
             android:textSize="20sp"
             android:textStyle="bold"/>
 
-        <TextView
-            android:id="@+id/tvLibrosSub"
+        <Button
+            android:id="@+id/btnExplorarLibros"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/proximamente"
-            android:layout_marginTop="4dp"/>
+            android:text="@string/btn_explorar_libros"
+            android:layout_marginTop="8dp"/>
+
     </LinearLayout>
 
     <!-- Tarjeta: Bibliotecas cerca (navega a pantalla de mapa) -->

@@ -16,31 +16,25 @@ import com.example.lectornovelaselectronicos.R
 import com.example.lectornovelaselectronicos.databinding.FragmentMapaExplorarBinding
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
 import com.google.gson.Gson
-import okhttp3.*
-import java.io.IOException
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import org.osmdroid.config.Configuration
+import org.osmdroid.tileprovider.tilesource.TileSourceFactory
+import org.osmdroid.util.GeoPoint
+import org.osmdroid.views.overlay.Marker
+import org.osmdroid.views.overlay.ScaleBarOverlay
+import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
+import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
 import kotlin.math.*
 
-// Arriba del archivo
-private val DEFAULT_LATLNG = LatLng(19.4326, -99.1332)  // CDMX
-private const val DEFAULT_ZOOM = 12f
-
-class MapaBibliotecasFragment : Fragment(), OnMapReadyCallback {
+class MapaBibliotecasFragment : Fragment() {
 
     private var _binding: FragmentMapaExplorarBinding? = null
     private val binding get() = _binding!!
 
-    private var gMap: GoogleMap? = null
     private val client = OkHttpClient()
-    private var currentApiCall: Call? = null
-
-
+    private var myLocationOverlay: MyLocationNewOverlay? = null
 
     private val pedirPermisos = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -57,23 +51,21 @@ class MapaBibliotecasFragment : Fragment(), OnMapReadyCallback {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        (childFragmentManager.findFragmentById(R.id.map) as? SupportMapFragment)
-            ?.getMapAsync(this)
-    }
 
-    override fun onMapReady(map: GoogleMap) {
-        gMap = map
-        gMap?.uiSettings?.isZoomControlsEnabled = true
+        // User-Agent requerido por osmdroid/Overpass
+        Configuration.getInstance().userAgentValue = requireContext().packageName
 
-        // Fallback inmediato: muestra algo siempre
-        gMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(DEFAULT_LATLNG, DEFAULT_ZOOM))
-        gMap?.addMarker(MarkerOptions().position(DEFAULT_LATLNG).title(getString(R.string.mi_ubicacion)))
-        binding.progreso.visibility = View.GONE
+        // Config básica del mapa
+        binding.osmMap.setTileSource(TileSourceFactory.MAPNIK)
+        binding.osmMap.controller.setZoom(12.0)
+        binding.osmMap.setMultiTouchControls(true)
 
-        // Luego intenta la ubicación real
+        // Barra de escala (opcional)
+        val scale = ScaleBarOverlay(binding.osmMap)
+        binding.osmMap.overlays.add(scale)
+
         checkPermisos()
     }
-
 
     private fun checkPermisos() {
         val fine = ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
@@ -88,42 +80,26 @@ class MapaBibliotecasFragment : Fragment(), OnMapReadyCallback {
         }
     }
 
-    private var ubicacionObtenida = false
-
     @SuppressLint("MissingPermission")
     private fun obtenerUbicacion() {
         binding.progreso.visibility = View.VISIBLE
-        ubicacionObtenida = false
-
-        // Timeout de 6s: si no llegó ubicación, ocultamos progreso
-        binding.root.postDelayed({
-            if (!ubicacionObtenida && isAdded) {
-                binding.progreso.visibility = View.GONE
-                toast(getString(R.string.error_generico))
-            }
-        }, 6000)
-
         val fused = LocationServices.getFusedLocationProviderClient(requireContext())
+
         fused.lastLocation.addOnSuccessListener { loc ->
             if (loc != null) {
-                ubicacionObtenida = true
-                binding.progreso.visibility = View.GONE
-                actualizarMapaConMiUbicacion(loc)
-                buscarBibliotecasCercanas(loc)
+                mostrarMiUbicacion(loc)
+                buscarPOIsOverpass(loc)
             } else {
                 fused.getCurrentLocation(Priority.PRIORITY_BALANCED_POWER_ACCURACY, null)
                     .addOnSuccessListener { l2 ->
-                        ubicacionObtenida = true
-                        binding.progreso.visibility = View.GONE
                         if (l2 != null) {
-                            actualizarMapaConMiUbicacion(l2)
-                            buscarBibliotecasCercanas(l2)
+                            mostrarMiUbicacion(l2)
+                            buscarPOIsOverpass(l2)
                         } else {
-                            // ya quedó el fallback por defecto
+                            binding.progreso.visibility = View.GONE
                             toast(getString(R.string.error_generico))
                         }
-                    }
-                    .addOnFailureListener {
+                    }.addOnFailureListener {
                         binding.progreso.visibility = View.GONE
                         toast(getString(R.string.error_generico))
                     }
@@ -134,89 +110,168 @@ class MapaBibliotecasFragment : Fragment(), OnMapReadyCallback {
         }
     }
 
+    @SuppressLint("MissingPermission")
+    private fun mostrarMiUbicacion(loc: Location) {
+        val p = GeoPoint(loc.latitude, loc.longitude)
+        binding.osmMap.controller.setCenter(p)
+        binding.osmMap.controller.setZoom(15.0)
 
-    private fun buscarBibliotecasCercanas(loc: Location) {
-        val key = getString(R.string.google_maps_key)
-        val url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json" +
-                "?location=${loc.latitude},${loc.longitude}" +
-                "&rankby=distance&type=library&language=es" +
-                "&key=$key"
+        // Punto azul siguiendo ubicación
+        myLocationOverlay?.disableMyLocation()
+        myLocationOverlay = MyLocationNewOverlay(GpsMyLocationProvider(requireContext()), binding.osmMap).also {
+            it.enableMyLocation()
+            binding.osmMap.overlays.add(it)
+        }
 
-        val req = Request.Builder().url(url).build()
-        currentApiCall = client.newCall(req)
-        currentApiCall?.enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) { if (isAdded) activity?.runOnUiThread { fallo() } }
+        // Marcador "Mi ubicación"
+        val m = Marker(binding.osmMap)
+        m.position = p
+        m.title = getString(R.string.mi_ubicacion)
+        m.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+        binding.osmMap.overlays.add(m)
+        binding.osmMap.invalidate()
+    }
 
-            override fun onResponse(call: Call, response: Response) {
-                val body = response.body?.string()
-                if (!response.isSuccessful || body == null) { if (isAdded) activity?.runOnUiThread { fallo() }; return }
+    /** Busca bibliotecas (amenity=library) y librerías (shop=books) con radios crecientes. */
+    private fun buscarPOIsOverpass(loc: Location) {
+        val radios = listOf(2000, 4000, 7000) // 2km, 4km, 7km
 
-                try {
-                    val dto = Gson().fromJson(body, NearbyResponse::class.java)
-                    val results = dto.results.take(5)
-                    if (isAdded) {
-                        activity?.runOnUiThread {
-                            binding.progreso.visibility = View.GONE
-                            // Limpia y re-agrega tu marcador
-                            gMap?.clear()
-                            actualizarMapaConMiUbicacion(loc)
+        fun queryFor(radius: Int): String =
+            "https://overpass-api.de/api/interpreter?data=[out:json];(" +
+                    "node(around:$radius,${loc.latitude},${loc.longitude})[amenity=library];" +
+                    "way(around:$radius,${loc.latitude},${loc.longitude})[amenity=library];" +
+                    "relation(around:$radius,${loc.latitude},${loc.longitude})[amenity=library];" +
+                    "node(around:$radius,${loc.latitude},${loc.longitude})[shop=books];" +
+                    "way(around:$radius,${loc.latitude},${loc.longitude})[shop=books];" +
+                    "relation(around:$radius,${loc.latitude},${loc.longitude})[shop=books];" +
+                    ");out center;"
 
-                            if (results.isEmpty()) {
-                                toast(getString(R.string.sin_resultados))
-                            } else {
-                                results.forEach { r ->
-                                    gMap?.addMarker(
-                                        MarkerOptions()
-                                            .position(LatLng(r.geometry.location.lat, r.geometry.location.lng))
-                                            .title(r.name ?: "")
-                                    )
+        fun lanzar(index: Int) {
+            if (index >= radios.size) {
+                if (isAdded) activity?.runOnUiThread {
+                    binding.progreso.visibility = View.GONE
+                    toast(getString(R.string.sin_resultados))
+                }
+                return
+            }
+
+            val url = queryFor(radios[index])
+            val req = Request.Builder()
+                .url(url)
+                .header("User-Agent", requireContext().packageName) // Overpass requiere UA
+                .build()
+
+            client.newCall(req).enqueue(object : okhttp3.Callback {
+                override fun onFailure(call: okhttp3.Call, e: java.io.IOException) {
+                    lanzar(index + 1) // intenta con el siguiente radio
+                }
+
+                override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
+                    val body = response.body?.string()
+                    if (!response.isSuccessful || body == null) {
+                        lanzar(index + 1); return
+                    }
+
+                    try {
+                        val dto = Gson().fromJson(body, OverpassResp::class.java)
+
+                        // Normaliza coordenadas (usa center para ways/relations)
+                        val sitios = dto.elements.mapNotNull { e ->
+                            val lat = e.lat ?: e.center?.lat
+                            val lon = e.lon ?: e.center?.lon
+                            if (lat == null || lon == null) return@mapNotNull null
+
+                            val isBiblioteca = e.tags?.get("amenity") == "library"
+                            val isLibreria  = e.tags?.get("shop") == "books"
+                            if (!isBiblioteca && !isLibreria) return@mapNotNull null
+
+                            val nombreBase = e.tags?.get("name:es")
+                                ?: e.tags?.get("name")
+                                ?: if (isBiblioteca) getString(R.string.tipo_biblioteca) else getString(R.string.tipo_libreria)
+
+                            val tipoSufijo = if (isBiblioteca) getString(R.string.tipo_biblioteca) else getString(R.string.tipo_libreria)
+                            val nombre = if (nombreBase.contains("(", true)) nombreBase else "$nombreBase $tipoSufijo"
+
+                            val d = distanciaKm(loc.latitude, loc.longitude, lat, lon)
+                            PoiOverpass(nombre, lat, lon, d)
+                        }
+                            .sortedBy { it.distKm }
+                            .take(5)
+
+                        if (sitios.isEmpty()) {
+                            lanzar(index + 1) // aumenta radio
+                        } else if (isAdded) {
+                            activity?.runOnUiThread {
+                                binding.progreso.visibility = View.GONE
+                                // Limpia marcadores anteriores (conserva "Mi ubicación")
+                                binding.osmMap.overlays.removeAll { it is Marker && it.title != getString(R.string.mi_ubicacion) }
+
+                                // Agrega marcadores de resultados
+                                sitios.forEach { s ->
+                                    val mk = Marker(binding.osmMap)
+                                    mk.position = GeoPoint(s.lat, s.lon)
+                                    mk.title = s.nombre
+                                    mk.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+                                    binding.osmMap.overlays.add(mk)
                                 }
+                                binding.osmMap.invalidate()
                             }
                         }
+                    } catch (_: Exception) {
+                        lanzar(index + 1)
                     }
-                } catch (_: Exception) {
-                    if (isAdded) activity?.runOnUiThread { fallo() }
                 }
-            }
-        })
-    }
-
-    @SuppressLint("MissingPermission")
-    private fun actualizarMapaConMiUbicacion(loc: Location) {
-        val yo = LatLng(loc.latitude, loc.longitude)
-        gMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(yo, 15f))
-
-        val fine = ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
-        val coarse = ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION)
-        if (fine == PackageManager.PERMISSION_GRANTED || coarse == PackageManager.PERMISSION_GRANTED) {
-            try { gMap?.isMyLocationEnabled = true } catch (_: SecurityException) {}
+            })
         }
-        gMap?.addMarker(MarkerOptions().position(yo).title(getString(R.string.mi_ubicacion)))
+
+        binding.progreso.visibility = View.VISIBLE
+        lanzar(0)
     }
 
-    private fun fallo() {
-        if (_binding != null) binding.progreso.visibility = View.GONE
-        toast(getString(R.string.error_generico))
+    private fun distanciaKm(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
+        val R = 6371.0
+        val dLat = Math.toRadians(lat2 - lat1)
+        val dLon = Math.toRadians(lon2 - lon1)
+        val a = sin(dLat/2).pow(2.0) + cos(Math.toRadians(lat1)) * cos(Math.toRadians(lat2)) * sin(dLon/2).pow(2.0)
+        val c = 2 * atan2(sqrt(a), sqrt(1-a))
+        return R * c
     }
 
-    private fun toast(msg: String) {
-        if (isAdded) Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
+    override fun onResume() {
+        super.onResume()
+        binding.osmMap.onResume()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        binding.osmMap.onPause()
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        currentApiCall?.cancel()
-        gMap = null
+        myLocationOverlay?.disableMyLocation()
         _binding = null
     }
 
-    // DTOs mínimos
-    data class NearbyResponse(val results: List<Result> = emptyList())
-    data class Result(val name: String?, val geometry: Geometry, val vicinity: String?, val formatted_address: String?)
-    data class Geometry(val location: L)
-    data class L(val lat: Double, val lng: Double)
+    private fun toast(msg: String) =
+        Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
+
+    // --------- DTO Overpass ----------
+    data class OverpassResp(val elements: List<Element> = emptyList())
+    data class Element(
+        val type: String,
+        val id: Long,
+        val lat: Double?,            // null en way/relation
+        val lon: Double?,            // null en way/relation
+        val center: Center?,         // disponible por "out center"
+        val tags: Map<String, String>?
+    )
+    data class Center(val lat: Double, val lon: Double)
+
+    data class PoiOverpass(val nombre: String, val lat: Double, val lon: Double, val distKm: Double)
 
     companion object {
+        @JvmStatic
         fun newInstance() = MapaBibliotecasFragment()
     }
 }
