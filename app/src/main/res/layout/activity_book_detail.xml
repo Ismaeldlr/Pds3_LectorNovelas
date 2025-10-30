@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white"
+    tools:context=".ui.detail.BookDetailActivity">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbarDetail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorSurface"
+        android:elevation="4dp"
+        app:navigationIcon="@drawable/ic_arrow_back_24"
+        app:title=""
+        app:titleCentered="false"
+        app:titleTextColor="@android:color/black" />
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scrollContent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="96dp"
+        android:clipToPadding="false"
+        android:padding="0dp"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="24dp">
+
+            <ImageView
+                android:id="@+id/imgCover"
+                android:layout_width="match_parent"
+                android:layout_height="220dp"
+                android:adjustViewBounds="true"
+                android:background="@drawable/placeholder_cover"
+                android:scaleType="centerCrop"
+                tools:src="@drawable/placeholder_cover" />
+
+            <TextView
+                android:id="@+id/tvTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.HeadlineMedium"
+                android:textColor="@android:color/black"
+                android:textStyle="bold"
+                tools:text="The Clockwork Archivist" />
+
+            <TextView
+                android:id="@+id/tvAuthor"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.BodyLarge"
+                android:textColor="@android:color/black"
+                tools:text="por Lena Farrow" />
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/groupQuickInfo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                app:singleLine="true"
+                app:singleSelection="false">
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipStatus"
+                    style="@style/Widget.MaterialComponents.Chip.Assist"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layoutMarginEnd="8dp"
+                    android:checkable="false"
+                    android:textAllCaps="true"
+                    tools:text="ONGOING" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipLanguage"
+                    style="@style/Widget.MaterialComponents.Chip.Assist"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layoutMarginEnd="8dp"
+                    android:checkable="false"
+                    tools:text="EN" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipChapterCount"
+                    style="@style/Widget.MaterialComponents.Chip.Assist"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkable="false"
+                    tools:text="3 capítulos" />
+            </com.google.android.material.chip.ChipGroup>
+
+            <TextView
+                android:id="@+id/labelGenres"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="@string/book_detail_genres"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.LabelLarge"
+                android:textColor="@android:color/black"
+                android:visibility="gone"
+                tools:visibility="visible" />
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chipGenres"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:visibility="gone"
+                app:singleLine="false"
+                app:singleSelection="false"
+                tools:visibility="visible">
+            </com.google.android.material.chip.ChipGroup>
+
+            <TextView
+                android:id="@+id/labelTags"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="@string/book_detail_tags"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.LabelLarge"
+                android:textColor="@android:color/black"
+                android:visibility="gone"
+                tools:visibility="visible" />
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chipTags"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:visibility="gone"
+                app:singleLine="false"
+                app:singleSelection="false"
+                tools:visibility="visible">
+            </com.google.android.material.chip.ChipGroup>
+
+            <TextView
+                android:id="@+id/labelDescription"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="@string/book_detail_description"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.LabelLarge"
+                android:textColor="@android:color/black" />
+
+            <TextView
+                android:id="@+id/tvDescription"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.BodyMedium"
+                android:textColor="@android:color/black"
+                tools:text="An apprentice historian unravels sentient automata secrets while cataloguing a haunted library." />
+
+            <TextView
+                android:id="@+id/labelChapters"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="@string/book_detail_table_of_contents"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.LabelLarge"
+                android:textColor="@android:color/black" />
+
+            <TextView
+                android:id="@+id/tvEmptyChapters"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/book_detail_no_chapters"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.BodyMedium"
+                android:textColor="@android:color/darker_gray"
+                android:visibility="gone"
+                tools:text="No hay capítulos disponibles"
+                tools:visibility="visible" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvChapters"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:nestedScrollingEnabled="false"
+                tools:listitem="@layout/item_chapter" />
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnLibrary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_margin="16dp"
+        android:text="@string/agregar_biblioteca"
+        android:textAllCaps="false"
+        app:cornerRadius="28dp"
+        app:layout_anchorGravity="bottom"
+        app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -1,6 +1,7 @@
 package com.example.lectornovelaselectronicos.data
 
 import com.example.lectornovelaselectronicos.Fragmentos.Biblioteca_Items.BookItem
+import com.example.lectornovelaselectronicos.Fragmentos.Biblioteca_Items.effectiveChapterCount
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -28,7 +29,10 @@ object FirebaseBookRepository {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val list = snapshot.children.mapNotNull { child ->
                     val item = child.getValue(BookItem::class.java)
-                    item?.apply { id = child.key }
+                    item?.apply {
+                        id = child.key
+                        chapterCount = effectiveChapterCount
+                    }
                 }
                 onData(list)
             }
@@ -76,4 +80,6 @@ object FirebaseBookRepository {
     fun currentUserId(): String? = auth.currentUser?.uid
 
     fun catalogReference(): DatabaseReference = booksRef
+
+    fun userLibraryReferenceFor(uid: String): DatabaseReference = userLibrariesRef.child(uid)
 }

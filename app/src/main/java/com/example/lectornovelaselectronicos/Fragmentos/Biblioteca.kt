@@ -14,9 +14,11 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.lectornovelaselectronicos.Fragmentos.Biblioteca_Items.BookAdapter
 import com.example.lectornovelaselectronicos.Fragmentos.Biblioteca_Items.BookItem
+import com.example.lectornovelaselectronicos.Fragmentos.Biblioteca_Items.ChapterSummary
 import com.example.lectornovelaselectronicos.Fragmentos.Biblioteca_Items.SpacingDecoration
 import com.example.lectornovelaselectronicos.R
 import com.example.lectornovelaselectronicos.data.FirebaseBookRepository
+import com.example.lectornovelaselectronicos.ui.detail.BookDetailActivity
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
@@ -135,23 +137,7 @@ class Biblioteca : Fragment() {
     }
 
     private fun showDetails(book: BookItem) {
-        val message = buildString {
-            if (book.author.isNotBlank()) {
-                append(getString(R.string.formato_autor, book.author)).append('\n')
-            }
-            if (book.chapters > 0) {
-                append(getString(R.string.formato_capitulos, book.chapters)).append('\n')
-            }
-            if (book.description.isNotBlank()) {
-                append('\n').append(book.description)
-            }
-        }.ifBlank { getString(R.string.sin_detalles_disponibles) }
-
-        AlertDialog.Builder(requireContext())
-            .setTitle(book.title)
-            .setMessage(message)
-            .setPositiveButton(R.string.cerrar, null)
-            .show()
+        BookDetailActivity.start(requireContext(), book)
     }
 
     private fun confirmRemove(book: BookItem) {
@@ -172,33 +158,39 @@ class Biblioteca : Fragment() {
             if (!snap.hasChildren()) {
                 val demo = listOf(
                     BookItem(
-                        title = "Shaman King",
-                        author = "Hiroyuki Takei",
-                        chapters = 305,
-                        coverUrl = "https://m.media-amazon.com/images/I/816k5LqS9kL._AC_UF1000,1000_QL80_.jpg",
-                        description = getString(R.string.demo_shaman_king)
+                        title = "The Clockwork Archivist",
+                        author = "Lena Farrow",
+                        description = getString(R.string.demo_clockwork_archivist),
+                        coverUrl = "https://example.com/covers/clockwork-archivist.jpg",
+                        language = "en",
+                        status = "ongoing",
+                        genres = listOf("Fantasy", "Mystery", "Steampunk"),
+                        tags = listOf("found family", "sentient machines", "slow burn"),
+                        chapterCount = 3,
+                        chapters = mapOf(
+                            "ch1" to ChapterSummary(index = 1, title = "Chapter 1: The Stalled Automatons", releaseDate = "2024-05-01"),
+                            "ch2" to ChapterSummary(index = 2, title = "Chapter 2: Dust and Declarations", releaseDate = "2024-05-08"),
+                            "ch3" to ChapterSummary(index = 3, title = "Chapter 3: Gears in the Dark", releaseDate = "2024-05-15"),
+                        ),
                     ),
                     BookItem(
-                        title = "Gachiakuta",
-                        author = "Kei Urana",
-                        chapters = 148,
-                        coverUrl = "https://m.media-amazon.com/images/I/81xZp3u2-YL._AC_UF1000,1000_QL80_.jpg",
-                        description = getString(R.string.demo_gachiakuta)
+                        title = "Azure Dynasty Online",
+                        author = "Kai Tanaka",
+                        description = getString(R.string.demo_azure_dynasty),
+                        coverUrl = "https://example.com/covers/azure-dynasty.jpg",
+                        language = "es",
+                        status = "hiatus",
+                        genres = listOf("Sci-Fi", "LitRPG"),
+                        tags = listOf("virtual reality", "time skip", "guild politics"),
+                        chapterCount = 5,
+                        chapters = mapOf(
+                            "ch1" to ChapterSummary(index = 1, title = "Chapter 1: Patch Notes of Ruin", releaseDate = "2023-11-12"),
+                            "ch2" to ChapterSummary(index = 2, title = "Chapter 2: Reunion at Neo-Shinjuku", releaseDate = "2023-11-19"),
+                            "ch3" to ChapterSummary(index = 3, title = "Chapter 3: Duel Under Neon Rain", releaseDate = "2023-11-26"),
+                            "ch4" to ChapterSummary(index = 4, title = "Chapter 4: The Hidden Patch Vault", releaseDate = "2023-12-03"),
+                            "ch5" to ChapterSummary(index = 5, title = "Chapter 5: System Rollback", releaseDate = "2023-12-10"),
+                        ),
                     ),
-                    BookItem(
-                        title = "D.Gray-man",
-                        author = "Katsura Hoshino",
-                        chapters = 529,
-                        coverUrl = "https://m.media-amazon.com/images/I/71u2eA+XySL._AC_UF1000,1000_QL80_.jpg",
-                        description = getString(R.string.demo_dgrayman)
-                    ),
-                    BookItem(
-                        title = "Chainsaw Man",
-                        author = "Tatsuki Fujimoto",
-                        chapters = 203,
-                        coverUrl = "https://m.media-amazon.com/images/I/81s8x021-CL._AC_UF1000,1000_QL80_.jpg",
-                        description = getString(R.string.demo_chainsaw)
-                    )
                 )
                 demo.forEach { FirebaseBookRepository.catalogReference().push().setValue(it) }
             }
@@ -215,8 +207,8 @@ class Biblioteca : Fragment() {
 
         val etTitle = EditText(ctx).apply { hint = getString(R.string.hint_titulo) }
         val etAuthor = EditText(ctx).apply { hint = getString(R.string.hint_autor) }
-        val etCh = EditText(ctx).apply {
-            hint = getString(R.string.hint_capitulos)
+        val etChapterCount = EditText(ctx).apply {
+            hint = getString(R.string.hint_chapter_count)
             inputType = InputType.TYPE_CLASS_NUMBER
         }
         val etCover = EditText(ctx).apply { hint = getString(R.string.hint_url_portada) }
@@ -224,12 +216,20 @@ class Biblioteca : Fragment() {
             hint = getString(R.string.hint_descripcion)
             inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_MULTI_LINE
         }
+        val etLanguage = EditText(ctx).apply { hint = getString(R.string.hint_idioma) }
+        val etStatus = EditText(ctx).apply { hint = getString(R.string.hint_estado) }
+        val etGenres = EditText(ctx).apply { hint = getString(R.string.hint_generos) }
+        val etTags = EditText(ctx).apply { hint = getString(R.string.hint_etiquetas) }
 
         layout.addView(etTitle)
         layout.addView(etAuthor)
-        layout.addView(etCh)
+        layout.addView(etChapterCount)
         layout.addView(etCover)
         layout.addView(etDescription)
+        layout.addView(etLanguage)
+        layout.addView(etStatus)
+        layout.addView(etGenres)
+        layout.addView(etTags)
 
         AlertDialog.Builder(ctx)
             .setTitle(R.string.titulo_dialogo_agregar)
@@ -243,9 +243,13 @@ class Biblioteca : Fragment() {
                 val book = BookItem(
                     title = title,
                     author = etAuthor.text.toString().trim(),
-                    chapters = etCh.text.toString().toIntOrNull() ?: 0,
+                    chapterCount = etChapterCount.text.toString().toIntOrNull() ?: 0,
                     coverUrl = etCover.text.toString().trim().ifEmpty { null },
-                    description = etDescription.text.toString().trim()
+                    description = etDescription.text.toString().trim(),
+                    language = etLanguage.text.toString().trim(),
+                    status = etStatus.text.toString().trim(),
+                    genres = etGenres.text.toString().split(',').map { it.trim() }.filter { it.isNotEmpty() },
+                    tags = etTags.text.toString().split(',').map { it.trim() }.filter { it.isNotEmpty() },
                 )
                 FirebaseBookRepository.catalogReference().push().setValue(book)
                 d.dismiss()
