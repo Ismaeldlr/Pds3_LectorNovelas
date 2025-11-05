@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -38,9 +39,9 @@ class BookDetailActivity : AppCompatActivity() {
         binding = ActivityBookDetailBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        setSupportActionBar(binding.toolbarDetail)
+        setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        binding.toolbarDetail.setNavigationOnClickListener { onBackPressedDispatcher.onBackPressed() }
+        binding.toolbar.setNavigationOnClickListener { onBackPressedDispatcher.onBackPressed() }
 
         chapterAdapter = ChapterAdapter()
         binding.rvChapters.apply {
@@ -49,19 +50,15 @@ class BookDetailActivity : AppCompatActivity() {
         }
 
         val json = intent.getStringExtra(EXTRA_BOOK_JSON)
-        if (json.isNullOrEmpty()) {
+        val book = json?.let { runCatching { gson.fromJson(it, BookItem::class.java) }.getOrNull() }
+        if (book == null) {
             finish()
             return
         }
 
-        val parsedBook = runCatching { gson.fromJson(json, BookItem::class.java) }.getOrNull()
-        if (parsedBook == null) {
-            finish()
-            return
-        }
-
-        renderBook(parsedBook)
-        observeLibraryState(parsedBook)
+        renderBook(book)
+        observeLibraryState(book)
+        setupTabs()
     }
 
     override fun onDestroy() {
@@ -69,12 +66,31 @@ class BookDetailActivity : AppCompatActivity() {
         libraryListener?.let { listener ->
             libraryRef?.removeEventListener(listener)
         }
-        libraryListener = null
-        libraryRef = null
+    }
+
+    private fun setupTabs() {
+        binding.tabAbout.setOnClickListener {
+            binding.boxAbout.visibility = View.VISIBLE
+            binding.boxToc.visibility = View.GONE
+            binding.tabAbout.setBackgroundResource(R.drawable.bg_segment_left_selected)
+            binding.tabToc.setBackgroundResource(R.drawable.bg_segment_right_unselected)
+            (it as TextView).setTextColor(getColorFromAttr(com.google.android.material.R.attr.colorOnPrimary))
+            binding.tabToc.setTextColor(getColorFromAttr(com.google.android.material.R.attr.colorOnSurface))
+        }
+        binding.tabToc.setOnClickListener {
+            binding.boxAbout.visibility = View.GONE
+            binding.boxToc.visibility = View.VISIBLE
+            binding.tabAbout.setBackgroundResource(R.drawable.bg_segment_left_unselected)
+            binding.tabToc.setBackgroundResource(R.drawable.bg_segment_right_selected)
+            (it as TextView).setTextColor(getColorFromAttr(com.google.android.material.R.attr.colorOnPrimary))
+            binding.tabAbout.setTextColor(getColorFromAttr(com.google.android.material.R.attr.colorOnSurface))
+        }
+        // Set initial state
+        binding.tabAbout.performClick()
     }
 
     private fun renderBook(book: BookItem) {
-        binding.toolbarDetail.title = book.title
+        binding.toolbar.title = ""
         binding.tvTitle.text = book.title
 
         if (book.author.isNotBlank()) {
@@ -84,51 +100,23 @@ class BookDetailActivity : AppCompatActivity() {
             binding.tvAuthor.visibility = View.GONE
         }
 
-        val chipColor = ContextCompat.getColor(this, R.color.md_light_onSurface)
-        val chipBackground = R.color.md_light_surfaceVariant
-
-        val status = book.status.trim()
         binding.chipStatus.apply {
-            isVisible = status.isNotEmpty()
-            if (status.isNotEmpty()) {
-                text = status.uppercase(Locale.getDefault())
-                setChipBackgroundColorResource(chipBackground)
-                setTextColor(chipColor)
-                setEnsureMinTouchTargetSize(false)
-            }
+            isVisible = book.status.isNotBlank()
+            if (isVisible) text = book.status.uppercase(Locale.getDefault())
         }
 
-        val language = book.language.trim()
         binding.chipLanguage.apply {
-            isVisible = language.isNotEmpty()
-            if (language.isNotEmpty()) {
-                text = language.uppercase(Locale.getDefault())
-                setChipBackgroundColorResource(chipBackground)
-                setTextColor(chipColor)
-                setEnsureMinTouchTargetSize(false)
-            }
+            isVisible = book.language.isNotBlank()
+            if (isVisible) text = book.language.uppercase(Locale.getDefault())
         }
 
         val chapterCount = book.effectiveChapterCount
         binding.chipChapterCount.apply {
             isVisible = chapterCount > 0
-            if (chapterCount > 0) {
-                text = resources.getQuantityString(
-                    R.plurals.book_detail_chapter_count,
-                    chapterCount,
-                    chapterCount,
-                )
-                setChipBackgroundColorResource(chipBackground)
-                setTextColor(chipColor)
-                setEnsureMinTouchTargetSize(false)
-            }
+            if (isVisible) text = resources.getQuantityString(R.plurals.book_detail_chapter_count, chapterCount, chapterCount)
         }
 
-        binding.groupQuickInfo.isVisible =
-            binding.chipStatus.isVisible || binding.chipLanguage.isVisible || binding.chipChapterCount.isVisible
-
-        val description = book.description.ifBlank { getString(R.string.book_detail_no_description) }
-        binding.tvDescription.text = description
+        binding.tvDescription.text = book.description.ifBlank { getString(R.string.book_detail_no_description) }
 
         populateChips(binding.chipGenres, binding.labelGenres, book.genres)
         populateChips(binding.chipTags, binding.labelTags, book.tags)
@@ -147,23 +135,20 @@ class BookDetailActivity : AppCompatActivity() {
     private fun populateChips(group: ChipGroup, label: View, values: List<String>?) {
         group.removeAllViews()
         val items = values?.filter { it.isNotBlank() } ?: emptyList()
-        val isVisible = items.isNotEmpty()
-        label.isVisible = isVisible
-        group.isVisible = isVisible
-        if (!isVisible) return
+        val hasItems = items.isNotEmpty()
+        label.isVisible = hasItems
+        group.isVisible = hasItems
 
-        val textColor = ContextCompat.getColor(this, R.color.md_light_onSurface)
-
-        items.forEach { text ->
-            val chip = Chip(this).apply {
-                this.text = text
-                isCheckable = false
-                isClickable = false
-                setChipBackgroundColorResource(R.color.md_light_surfaceVariant)
-                setTextColor(textColor)
-                setEnsureMinTouchTargetSize(false)
+        if (hasItems) {
+            items.forEach { text ->
+                val chip = Chip(
+                    // Use a ContextThemeWrapper to apply the style programmatically
+                    android.view.ContextThemeWrapper(this, com.google.android.material.R.style.Widget_Material3_Chip_Assist)
+                ).apply {
+                    this.text = text
+                }
+                group.addView(chip)
             }
-            group.addView(chip)
         }
     }
 
@@ -187,7 +172,7 @@ class BookDetailActivity : AppCompatActivity() {
 
         binding.btnLibrary.isVisible = true
         libraryRef = FirebaseBookRepository.userLibraryReferenceFor(uid).child(bookId)
-        val listener = object : ValueEventListener {
+        libraryListener = libraryRef?.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 isInLibrary = snapshot.exists()
                 updateLibraryButton()
@@ -196,9 +181,7 @@ class BookDetailActivity : AppCompatActivity() {
             override fun onCancelled(error: DatabaseError) {
                 Toast.makeText(this@BookDetailActivity, error.message, Toast.LENGTH_SHORT).show()
             }
-        }
-        libraryListener = listener
-        libraryRef?.addValueEventListener(listener)
+        })
 
         binding.btnLibrary.setOnClickListener {
             if (isInLibrary) {
@@ -213,6 +196,13 @@ class BookDetailActivity : AppCompatActivity() {
         val textRes = if (isInLibrary) R.string.quitar_biblioteca else R.string.agregar_biblioteca
         binding.btnLibrary.text = getString(textRes)
     }
+
+    private fun Context.getColorFromAttr(attr: Int): Int {
+        val typedValue = android.util.TypedValue()
+        theme.resolveAttribute(attr, typedValue, true)
+        return typedValue.data
+    }
+
 
     companion object {
         private const val EXTRA_BOOK_JSON = "extra_book_json"

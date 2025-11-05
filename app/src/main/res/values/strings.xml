@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">App Compra y Venta</string>
+    <string name="app_name"></string>
 
     <string name="Item_Biblioteca">Biblioteca</string>
     <string name="Item_Explorar">Explorar</string>
@@ -120,4 +120,26 @@
     <!-- Descripciones demo -->
     <string name="demo_clockwork_archivist">Un aprendiz de archivista descubre secretos de autómatas mientras cataloga una biblioteca embrujada.</string>
     <string name="demo_azure_dynasty">Un prodigio de los VRMMO regresa tras cinco años para unir a los gremios antes de un parche catastrófico.</string>
+
+    <string name="book_detail_cover">Portada</string>
+    <string name="book_detail_title_sample">My Divine Diary</string>
+    <string name="book_detail_author_sample">大力宝</string>
+    <string name="book_detail_status_completed">completed</string>
+    <string name="book_detail_lang_zh">zh</string>
+    <string name="book_detail_start_reading">Start reading</string>
+    <string name="book_detail_progress_sample">0 / 1002 %1$s</string> <!-- si quieres añade "read 0%" -->
+    <string name="book_detail_ready">Ready</string>
+
+    <string name="book_detail_about">About</string>
+    <string name="book_detail_toc">Table of Contents</string>
+
+
+    <string name="book_detail_description_sample">An accident gave Su Hao the ability to reincarnate infinitely. But who can tell him why he can’t live past five years of age every time he is reincarnated?</string>
+
+    <string name="book_detail_details">Details</string>
+    <string name="book_detail_author_row_sample">Author: 大力宝</string>
+    <string name="book_detail_lang_row_sample">Original Lang: zh</string>
+    <string name="book_detail_status_row_sample">Status: completed</string>
+    <string name="book_detail_slug_row_sample">Slug: —</string>
+
 </resources>

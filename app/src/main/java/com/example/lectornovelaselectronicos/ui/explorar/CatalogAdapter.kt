@@ -44,8 +44,6 @@ class CatalogAdapter(
         private val img: ImageView = view.findViewById(R.id.imgCover)
         private val title: TextView = view.findViewById(R.id.tvTitle)
         private val badge: TextView = view.findViewById(R.id.tvBadge)
-        private val status: TextView = view.findViewById(R.id.tvStatus)
-        private val language: TextView = view.findViewById(R.id.tvLanguage)
         private val more: View = view.findViewById(R.id.btnMore)
 
         fun bind(book: BookItem) {
@@ -59,12 +57,8 @@ class CatalogAdapter(
             }
 
             val normalizedStatus = book.status.trim()
-            status.visibility = if (normalizedStatus.isNotEmpty()) View.VISIBLE else View.GONE
-            status.text = normalizedStatus.uppercase(Locale.getDefault())
 
             val normalizedLanguage = book.language.trim()
-            language.visibility = if (normalizedLanguage.isNotEmpty()) View.VISIBLE else View.GONE
-            language.text = normalizedLanguage.uppercase(Locale.getDefault())
             more.visibility = View.GONE
 
             itemView.setOnClickListener { onBookClick(book) }

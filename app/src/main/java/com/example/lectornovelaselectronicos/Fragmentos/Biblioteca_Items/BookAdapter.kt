@@ -30,8 +30,6 @@ class BookAdapter(
         val img: ImageView = v.findViewById(R.id.imgCover)
         val title: TextView = v.findViewById(R.id.tvTitle)
         val badge: TextView = v.findViewById(R.id.tvBadge)
-        val status: TextView = v.findViewById(R.id.tvStatus)
-        val language: TextView = v.findViewById(R.id.tvLanguage)
         val more: ImageButton = v.findViewById(R.id.btnMore)
     }
 
@@ -51,13 +49,6 @@ class BookAdapter(
             h.itemView.context.getString(R.string.card_badge_chapters, chapterCount)
         } else ""
 
-        val normalizedStatus = book.status.trim()
-        h.status.isVisible = normalizedStatus.isNotEmpty()
-        h.status.text = normalizedStatus.uppercase(Locale.getDefault())
-
-        val normalizedLanguage = book.language.trim()
-        h.language.isVisible = normalizedLanguage.isNotEmpty()
-        h.language.text = normalizedLanguage.uppercase(Locale.getDefault())
 
         h.itemView.setOnClickListener {
             val idx = h.bindingAdapterPosition
