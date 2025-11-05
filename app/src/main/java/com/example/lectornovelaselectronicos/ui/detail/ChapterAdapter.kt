@@ -10,7 +10,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.lectornovelaselectronicos.Fragmentos.Biblioteca_Items.ChapterSummary
 import com.example.lectornovelaselectronicos.R
 
-class ChapterAdapter : ListAdapter<ChapterSummary, ChapterAdapter.VH>(DiffCallback) {
+class ChapterAdapter(
+    private val onChapterClick: (ChapterSummary, Int) -> Unit,
+) : ListAdapter<ChapterSummary, ChapterAdapter.VH>(DiffCallback) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
         val view = LayoutInflater.from(parent.context)
@@ -20,6 +22,12 @@ class ChapterAdapter : ListAdapter<ChapterSummary, ChapterAdapter.VH>(DiffCallba
 
     override fun onBindViewHolder(holder: VH, position: Int) {
         holder.bind(getItem(position))
+        holder.itemView.setOnClickListener {
+            val adapterPosition = holder.bindingAdapterPosition
+            if (adapterPosition != RecyclerView.NO_POSITION) {
+                onChapterClick(getItem(adapterPosition), adapterPosition)
+            }
+        }
     }
 
     class VH(view: View) : RecyclerView.ViewHolder(view) {
@@ -32,9 +40,26 @@ class ChapterAdapter : ListAdapter<ChapterSummary, ChapterAdapter.VH>(DiffCallba
             }
             title.text = displayTitle
 
-            val number = if (chapter.index > 0) "#${chapter.index}" else "#?"
-            val date = chapter.releaseDate?.takeIf { it.isNotBlank() }
-            meta.text = if (date != null) "$number • $date" else number
+            val context = itemView.context
+            val parts = mutableListOf<String>()
+
+            if (chapter.index > 0) {
+                parts += "#${chapter.index}"
+            } else {
+                parts += "#?"
+            }
+
+            chapter.variant.takeIf { it.isNotBlank() }?.let {
+                parts += context.getString(R.string.chapter_meta_variant, it)
+            }
+
+            chapter.language.takeIf { it.isNotBlank() }?.let {
+                parts += context.getString(R.string.chapter_meta_language, it)
+            }
+
+            chapter.releaseDate?.takeIf { it.isNotBlank() }?.let { parts += it }
+
+            meta.text = parts.joinToString(separator = " • ")
         }
     }
 

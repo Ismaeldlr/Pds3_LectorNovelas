@@ -58,6 +58,9 @@
             android:name=".ui.detail.BookDetailActivity"
             android:exported="false" />
         <activity
+            android:name=".ui.reader.ChapterContentActivity"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>

@@ -142,4 +142,13 @@
     <string name="book_detail_status_row_sample">Status: completed</string>
     <string name="book_detail_slug_row_sample">Slug: —</string>
 
+    <string name="chapter_action_back">Anterior</string>
+    <string name="chapter_action_list">Lista de capítulos</string>
+    <string name="chapter_action_next">Siguiente</string>
+    <string name="chapter_heading_number">Capítulo %1$d</string>
+    <string name="chapter_heading_unknown">Capítulo</string>
+    <string name="chapter_meta_variant">Variante: %1$s</string>
+    <string name="chapter_meta_language">Idioma: %1$s</string>
+    <string name="chapter_content_unavailable">Este capítulo aún no tiene contenido disponible.</string>
+
 </resources>

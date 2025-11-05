@@ -17,6 +17,7 @@ import com.example.lectornovelaselectronicos.Fragmentos.Biblioteca_Items.sortedC
 import com.example.lectornovelaselectronicos.R
 import com.example.lectornovelaselectronicos.data.FirebaseBookRepository
 import com.example.lectornovelaselectronicos.databinding.ActivityBookDetailBinding
+import com.example.lectornovelaselectronicos.ui.reader.ChapterContentActivity
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.google.firebase.database.DataSnapshot
@@ -43,11 +44,7 @@ class BookDetailActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         binding.toolbar.setNavigationOnClickListener { onBackPressedDispatcher.onBackPressed() }
 
-        chapterAdapter = ChapterAdapter()
-        binding.rvChapters.apply {
-            layoutManager = LinearLayoutManager(this@BookDetailActivity)
-            adapter = chapterAdapter
-        }
+        binding.rvChapters.layoutManager = LinearLayoutManager(this)
 
         val json = intent.getStringExtra(EXTRA_BOOK_JSON)
         val book = json?.let { runCatching { gson.fromJson(it, BookItem::class.java) }.getOrNull() }
@@ -56,6 +53,7 @@ class BookDetailActivity : AppCompatActivity() {
             return
         }
 
+        setupChapterAdapter(book)
         renderBook(book)
         observeLibraryState(book)
         setupTabs()
@@ -87,6 +85,13 @@ class BookDetailActivity : AppCompatActivity() {
         }
         // Set initial state
         binding.tabAbout.performClick()
+    }
+
+    private fun setupChapterAdapter(book: BookItem) {
+        chapterAdapter = ChapterAdapter { _, position ->
+            ChapterContentActivity.start(this, book, position)
+        }
+        binding.rvChapters.adapter = chapterAdapter
     }
 
     private fun renderBook(book: BookItem) {
