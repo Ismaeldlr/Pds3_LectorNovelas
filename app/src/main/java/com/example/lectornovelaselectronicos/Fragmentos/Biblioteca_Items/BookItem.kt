@@ -23,6 +23,9 @@ data class ChapterSummary(
     var index: Int = 0,
     var title: String = "",
     var releaseDate: String? = null,
+    var variant: String = "",
+    var language: String = "",
+    var content: String = "",
 )
 
 val BookItem.effectiveChapterCount: Int

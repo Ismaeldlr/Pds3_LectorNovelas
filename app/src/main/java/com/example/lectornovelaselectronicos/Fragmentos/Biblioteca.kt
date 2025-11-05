@@ -168,9 +168,42 @@ class Biblioteca : Fragment() {
                         tags = listOf("found family", "sentient machines", "slow burn"),
                         chapterCount = 3,
                         chapters = mapOf(
-                            "ch1" to ChapterSummary(index = 1, title = "Chapter 1: The Stalled Automatons", releaseDate = "2024-05-01"),
-                            "ch2" to ChapterSummary(index = 2, title = "Chapter 2: Dust and Declarations", releaseDate = "2024-05-08"),
-                            "ch3" to ChapterSummary(index = 3, title = "Chapter 3: Gears in the Dark", releaseDate = "2024-05-15"),
+                            "ch1" to ChapterSummary(
+                                index = 1,
+                                title = "Chapter 1: The Stalled Automatons",
+                                releaseDate = "2024-05-01",
+                                variant = "RAW",
+                                language = "en",
+                                content = """
+                                    Lena recorrió los pasillos de la biblioteca mecánica mientras el olor a aceite rancio flotaba en el aire.
+                                    Cada autómata detenido era un misterio anotado en su cuaderno, una promesa de despertar.
+                                    Cuando descubrió la rendija de luz bajo la puerta del archivo prohibido, supo que aquella noche no dormiría.
+                                """.trimIndent(),
+                            ),
+                            "ch2" to ChapterSummary(
+                                index = 2,
+                                title = "Chapter 2: Dust and Declarations",
+                                releaseDate = "2024-05-08",
+                                variant = "RAW",
+                                language = "en",
+                                content = """
+                                    Las declaraciones oficiales ocultaban más engranajes rotos que soluciones.
+                                    Lena desenterró un manifiesto olvidado y, con él, una alianza con los viejos custodios de vapor.
+                                    La ciudad dormía ajena a que las máquinas planeaban su propia resurrección.
+                                """.trimIndent(),
+                            ),
+                            "ch3" to ChapterSummary(
+                                index = 3,
+                                title = "Chapter 3: Gears in the Dark",
+                                releaseDate = "2024-05-15",
+                                variant = "RAW",
+                                language = "en",
+                                content = """
+                                    Entre engranajes ocultos Lena encontró un corazón de cristal latiendo en silencio.
+                                    Cada giro hacía vibrar los muros, como si la biblioteca recordara un antiguo juramento.
+                                    La sombra que la observaba desde lo alto activó mecanismos que jamás debieron volver a moverse.
+                                """.trimIndent(),
+                            ),
                         ),
                     ),
                     BookItem(
@@ -184,11 +217,66 @@ class Biblioteca : Fragment() {
                         tags = listOf("virtual reality", "time skip", "guild politics"),
                         chapterCount = 5,
                         chapters = mapOf(
-                            "ch1" to ChapterSummary(index = 1, title = "Chapter 1: Patch Notes of Ruin", releaseDate = "2023-11-12"),
-                            "ch2" to ChapterSummary(index = 2, title = "Chapter 2: Reunion at Neo-Shinjuku", releaseDate = "2023-11-19"),
-                            "ch3" to ChapterSummary(index = 3, title = "Chapter 3: Duel Under Neon Rain", releaseDate = "2023-11-26"),
-                            "ch4" to ChapterSummary(index = 4, title = "Chapter 4: The Hidden Patch Vault", releaseDate = "2023-12-03"),
-                            "ch5" to ChapterSummary(index = 5, title = "Chapter 5: System Rollback", releaseDate = "2023-12-10"),
+                            "ch1" to ChapterSummary(
+                                index = 1,
+                                title = "Chapter 1: Patch Notes of Ruin",
+                                releaseDate = "2023-11-12",
+                                variant = "WEB",
+                                language = "es",
+                                content = """
+                                    El parche 5.0 prometía equilibrio, pero convirtió las llanuras iniciales en un campo de ruinas imposibles.
+                                    Kai revisó las notas oficiales mientras la cuenta regresiva inundaba su visión.
+                                    «Reagrupamos en el refugio antiguo», ordenó, sabiendo que sólo quedaban minutos antes del reinicio.
+                                """.trimIndent(),
+                            ),
+                            "ch2" to ChapterSummary(
+                                index = 2,
+                                title = "Chapter 2: Reunion at Neo-Shinjuku",
+                                releaseDate = "2023-11-19",
+                                variant = "WEB",
+                                language = "es",
+                                content = """
+                                    Las luces de Neo-Shinjuku parpadeaban con el reflejo de miles de jugadores que regresaban del exilio.
+                                    Kai estrechó manos, calculó alianzas y recordó promesas hechas cinco años atrás.
+                                    El gremio Fénix le entregó los planos de un servidor fantasma capaz de engañar al sistema.
+                                """.trimIndent(),
+                            ),
+                            "ch3" to ChapterSummary(
+                                index = 3,
+                                title = "Chapter 3: Duel Under Neon Rain",
+                                releaseDate = "2023-11-26",
+                                variant = "WEB",
+                                language = "es",
+                                content = """
+                                    La lluvia de neón caía pesada mientras Kai enfrentaba al duelista sintético designado por la administración.
+                                    Cada golpe resonaba con ecos de código y chispas reales.
+                                    Ganó apostando su propia barra de vida para romper el patrón predictivo del enemigo.
+                                """.trimIndent(),
+                            ),
+                            "ch4" to ChapterSummary(
+                                index = 4,
+                                title = "Chapter 4: The Hidden Patch Vault",
+                                releaseDate = "2023-12-03",
+                                variant = "WEB",
+                                language = "es",
+                                content = """
+                                    La bóveda estaba enterrada bajo capas de datos olvidados y custodios fractales.
+                                    Con ayuda del gremio, Kai abrió el acceso y descubrió parches descartados por ser demasiado arriesgados.
+                                    Encontró uno capaz de revertir el tiempo del servidor, pero a costa de borrar recuerdos.
+                                """.trimIndent(),
+                            ),
+                            "ch5" to ChapterSummary(
+                                index = 5,
+                                title = "Chapter 5: System Rollback",
+                                releaseDate = "2023-12-10",
+                                variant = "WEB",
+                                language = "es",
+                                content = """
+                                    Cuando activaron el rollback, el cielo digital se partió y mostró líneas de código desnudo.
+                                    Los jugadores sintieron cómo sus logros se desvanecían, pero el mundo recuperó su estabilidad.
+                                    Kai guardó el registro secreto del parche, decidido a usarlo sólo si el futuro volvía a derrumbarse.
+                                """.trimIndent(),
+                            ),
                         ),
                     ),
                 )
