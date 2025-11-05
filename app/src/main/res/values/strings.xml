@@ -49,6 +49,17 @@
     <string name="guardar">Guardar</string>
     <string name="cancelar">Cancelar</string>
     <string name="error_titulo_vacio">El título es obligatorio.</string>
+    <string name="titulo_dialogo_accion_libro">¿Cómo deseas agregar la novela?</string>
+    <string name="opcion_agregar_manual">Crear manualmente</string>
+    <string name="opcion_importar_archivo">Importar archivo</string>
+    <string name="titulo_dialogo_importar">Importar novela</string>
+    <string name="opcion_importar_json">Archivo JSON (estructura personalizada)</string>
+    <string name="opcion_importar_epub">Archivo EPUB</string>
+    <string name="mensaje_importacion_exitosa">Novela importada correctamente.</string>
+    <string name="error_importacion_archivo">No se pudo importar el archivo seleccionado.</string>
+    <string name="error_importacion_json_formato">El archivo JSON no tiene el formato esperado.</string>
+    <string name="error_importacion_json_sin_titulo">El JSON no contiene un título válido.</string>
+    <string name="titulo_desconocido">Título desconocido</string>
 
     <!-- Fragment Explorar -->
     <string name="title_explorar">Explorar</string>

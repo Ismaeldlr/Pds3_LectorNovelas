@@ -1,7 +1,10 @@
 package com.example.lectornovelaselectronicos.Fragmentos
 
 import android.app.AlertDialog
+import android.content.Context
+import android.net.Uri
 import android.os.Bundle
+import android.provider.OpenableColumns
 import android.text.InputType
 import android.view.LayoutInflater
 import android.view.View
@@ -9,6 +12,7 @@ import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -22,6 +26,12 @@ import com.example.lectornovelaselectronicos.ui.detail.BookDetailActivity
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import nl.siegmann.epublib.domain.Author
+import nl.siegmann.epublib.domain.Metadata
+import nl.siegmann.epublib.epub.EpubReader
+import org.json.JSONArray
+import org.json.JSONException
+import org.json.JSONObject
 
 class Biblioteca : Fragment() {
 
@@ -40,6 +50,14 @@ class Biblioteca : Fragment() {
     private var catalogListener: ValueEventListener? = null
     private var libraryListener: ValueEventListener? = null
     private var libraryUid: String? = null
+
+    private val importJsonLauncher = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        uri?.let { importJson(it) }
+    }
+
+    private val importEpubLauncher = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        uri?.let { importEpub(it) }
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         return inflater.inflate(R.layout.fragment_biblioteca, container, false)
@@ -287,6 +305,26 @@ class Biblioteca : Fragment() {
 
     private fun showAddDialog() {
         val ctx = requireContext()
+        val options = arrayOf(
+            getString(R.string.opcion_agregar_manual),
+            getString(R.string.opcion_importar_archivo),
+        )
+
+        AlertDialog.Builder(ctx)
+            .setTitle(R.string.titulo_dialogo_accion_libro)
+            .setItems(options) { dialog, which ->
+                when (which) {
+                    0 -> showManualAddDialog()
+                    1 -> showImportOptions()
+                }
+                dialog.dismiss()
+            }
+            .setNegativeButton(R.string.cancelar, null)
+            .show()
+    }
+
+    private fun showManualAddDialog() {
+        val ctx = requireContext()
 
         val layout = android.widget.LinearLayout(ctx).apply {
             orientation = android.widget.LinearLayout.VERTICAL
@@ -345,6 +383,177 @@ class Biblioteca : Fragment() {
             .setNegativeButton(R.string.cancelar, null)
             .show()
     }
+
+    private fun showImportOptions() {
+        val ctx = requireContext()
+        val options = arrayOf(
+            getString(R.string.opcion_importar_json),
+            getString(R.string.opcion_importar_epub),
+        )
+
+        AlertDialog.Builder(ctx)
+            .setTitle(R.string.titulo_dialogo_importar)
+            .setItems(options) { dialog, which ->
+                when (which) {
+                    0 -> launchJsonImport()
+                    1 -> launchEpubImport()
+                }
+                dialog.dismiss()
+            }
+            .setNegativeButton(R.string.cancelar, null)
+            .show()
+    }
+
+    private fun launchJsonImport() {
+        importJsonLauncher.launch(arrayOf("application/json", "text/json"))
+    }
+
+    private fun launchEpubImport() {
+        importEpubLauncher.launch(arrayOf("application/epub+zip"))
+    }
+
+    private fun importJson(uri: Uri) {
+        val ctx = requireContext()
+        try {
+            val resolver = ctx.contentResolver
+            val jsonText = resolver.openInputStream(uri)?.bufferedReader()?.use { it.readText() }
+                ?: throw IllegalStateException("empty_input")
+            val json = JSONObject(jsonText)
+            val book = parseJsonBook(json)
+            FirebaseBookRepository.catalogReference().push().setValue(book)
+            Toast.makeText(ctx, R.string.mensaje_importacion_exitosa, Toast.LENGTH_SHORT).show()
+        } catch (ex: JSONException) {
+            Toast.makeText(ctx, R.string.error_importacion_json_formato, Toast.LENGTH_LONG).show()
+        } catch (ex: IllegalArgumentException) {
+            Toast.makeText(ctx, ex.message ?: getString(R.string.error_importacion_json_formato), Toast.LENGTH_LONG).show()
+        } catch (ex: Exception) {
+            Toast.makeText(ctx, R.string.error_importacion_archivo, Toast.LENGTH_LONG).show()
+        }
+    }
+
+    private fun importEpub(uri: Uri) {
+        val ctx = requireContext()
+        try {
+            val resolver = ctx.contentResolver
+            val book = resolver.openInputStream(uri)?.use { input ->
+                EpubReader().readEpub(input)
+            } ?: throw IllegalStateException("empty_input")
+
+            val metadata = book.metadata
+            val title = (metadata.firstTitle()?.takeIf { it.isNotBlank() }
+                ?: uri.displayName(ctx)?.substringBeforeLast('.')
+                ?: getString(R.string.titulo_desconocido)).trim()
+            val author = metadata.authorNames()
+            val description = metadata.descriptions?.joinToString("\n")?.trim().orEmpty()
+            val subjects = metadata.subjects?.map { it.trim() }?.filter { it.isNotEmpty() } ?: emptyList()
+            val language = metadata.languages?.firstOrNull()?.trim().orEmpty()
+
+            val bookItem = BookItem(
+                title = title,
+                author = author,
+                description = description,
+                language = language,
+                status = "",
+                genres = subjects,
+                tags = subjects,
+                chapterCount = book.spine.spineReferences.size,
+            )
+
+            FirebaseBookRepository.catalogReference().push().setValue(bookItem)
+            Toast.makeText(ctx, R.string.mensaje_importacion_exitosa, Toast.LENGTH_SHORT).show()
+        } catch (ex: Exception) {
+            Toast.makeText(ctx, R.string.error_importacion_archivo, Toast.LENGTH_LONG).show()
+        }
+    }
+
+    private fun parseJsonBook(json: JSONObject): BookItem {
+        val title = json.optString("title").takeIf { it.isNotBlank() }
+            ?: throw IllegalArgumentException(getString(R.string.error_importacion_json_sin_titulo))
+
+        val genres = json.optJSONArray("genres").toStringList()
+        val tags = json.optJSONArray("tags").toStringList()
+
+        val chaptersArray = json.optJSONArray("chapters")
+        val chapters = chaptersArray?.let { array ->
+            if (array.length() == 0) null else {
+                val map = linkedMapOf<String, ChapterSummary>()
+                for (i in 0 until array.length()) {
+                    val obj = array.optJSONObject(i) ?: continue
+                    val identifier = obj.optString("id").ifBlank { "ch${i + 1}" }
+                    val summary = ChapterSummary(
+                        index = obj.optInt("index", i + 1),
+                        title = obj.optString("title"),
+                        releaseDate = obj.optString("releaseDate").ifBlank { null },
+                        variant = obj.optString("variant"),
+                        language = obj.optString("language"),
+                        content = obj.optString("content"),
+                    )
+                    map[identifier] = summary
+                }
+                map
+            }
+        }
+
+        val chapterCount = when {
+            json.has("chapterCount") -> json.optInt("chapterCount", chapters?.size ?: 0)
+            else -> chapters?.size ?: 0
+        }
+
+        return BookItem(
+            title = title,
+            author = json.optString("author"),
+            description = json.optString("description"),
+            coverUrl = json.optString("coverUrl").ifBlank { null },
+            language = json.optString("language"),
+            status = json.optString("status"),
+            genres = genres,
+            tags = tags,
+            chapterCount = chapterCount,
+            chapters = chapters,
+        )
+    }
+
+    private fun JSONArray?.toStringList(): List<String> {
+        if (this == null) return emptyList()
+        val values = mutableListOf<String>()
+        for (i in 0 until length()) {
+            val value = optString(i)
+            if (!value.isNullOrBlank()) {
+                values += value.trim()
+            }
+        }
+        return values
+    }
+
+    private fun Metadata.firstTitle(): String? = titles?.firstOrNull()
+
+    private fun Metadata.authorNames(): String {
+        val list = authors ?: return ""
+        return list.mapNotNull { author -> author.fullName().takeIf { it.isNotBlank() } }
+            .distinct()
+            .joinToString(", ")
+    }
+
+    private fun Author.fullName(): String {
+        val first = firstname?.trim().orEmpty()
+        val last = lastname?.trim().orEmpty()
+        val combined = listOf(first, last).filter { it.isNotEmpty() }.joinToString(" ")
+        return if (combined.isNotEmpty()) combined else toString()
+    }
+
+    private fun Uri.displayName(context: Context): String? {
+        val resolver = context.contentResolver
+        resolver.query(this, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)?.use { cursor ->
+            if (cursor.moveToFirst()) {
+                val index = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                if (index != -1) {
+                    return cursor.getString(index)
+                }
+            }
+        }
+        return lastPathSegment
+    }
+
 
     private fun handleError(error: DatabaseError) {
         Toast.makeText(requireContext(), error.message, Toast.LENGTH_SHORT).show()
