@@ -92,6 +92,12 @@
     <string name="book_detail_author">Autor: %1$s</string>
     <string name="book_detail_login_to_save">Inicia sesión para guardar</string>
     <string name="book_detail_chapter_placeholder">Capítulo %1$d</string>
+    <string name="chapter_block_label">Capítulos %1$d-%2$d</string>
+    <string name="chapter_block_toggle_content_description">Expandir o contraer bloque de capítulos</string>
+    <plurals name="chapter_block_count">
+        <item quantity="one">%d capítulo</item>
+        <item quantity="other">%d capítulos</item>
+    </plurals>
     <plurals name="book_detail_chapter_count">
         <item quantity="one">%d capítulo</item>
         <item quantity="other">%d capítulos</item>
