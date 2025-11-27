@@ -2,10 +2,12 @@ package com.example.lectornovelaselectronicos.ui.detail
 
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
@@ -21,6 +23,7 @@ import com.example.lectornovelaselectronicos.databinding.ActivityBookDetailBindi
 import com.example.lectornovelaselectronicos.ui.reader.ChapterContentActivity
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
@@ -35,6 +38,11 @@ class BookDetailActivity : AppCompatActivity() {
     private var libraryListener: ValueEventListener? = null
     private var libraryRef: DatabaseReference? = null
     private var isInLibrary: Boolean = false
+    private var selectedCoverBytes: ByteArray? = null
+
+    private val pickCoverLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+        uri?.let { handleCoverSelected(it) }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,6 +66,7 @@ class BookDetailActivity : AppCompatActivity() {
         renderBook(book)
         observeLibraryState(book)
         setupTabs()
+        setupEditForm(book)
     }
 
     override fun onDestroy() {
@@ -68,24 +77,10 @@ class BookDetailActivity : AppCompatActivity() {
     }
 
     private fun setupTabs() {
-        binding.tabAbout.setOnClickListener {
-            binding.boxAbout.visibility = View.VISIBLE
-            binding.boxToc.visibility = View.GONE
-            binding.tabAbout.setBackgroundResource(R.drawable.bg_segment_left_selected)
-            binding.tabToc.setBackgroundResource(R.drawable.bg_segment_right_unselected)
-            (it as TextView).setTextColor(getColorFromAttr(com.google.android.material.R.attr.colorOnPrimary))
-            binding.tabToc.setTextColor(getColorFromAttr(com.google.android.material.R.attr.colorOnSurface))
-        }
-        binding.tabToc.setOnClickListener {
-            binding.boxAbout.visibility = View.GONE
-            binding.boxToc.visibility = View.VISIBLE
-            binding.tabAbout.setBackgroundResource(R.drawable.bg_segment_left_unselected)
-            binding.tabToc.setBackgroundResource(R.drawable.bg_segment_right_selected)
-            (it as TextView).setTextColor(getColorFromAttr(com.google.android.material.R.attr.colorOnPrimary))
-            binding.tabAbout.setTextColor(getColorFromAttr(com.google.android.material.R.attr.colorOnSurface))
-        }
-        // Set initial state
-        binding.tabAbout.performClick()
+        binding.tabAbout.setOnClickListener { selectTab(DetailTab.ABOUT) }
+        binding.tabToc.setOnClickListener { selectTab(DetailTab.TOC) }
+        binding.tabEdit.setOnClickListener { selectTab(DetailTab.EDIT) }
+        selectTab(DetailTab.ABOUT)
     }
 
     private fun setupChapterAdapter(book: BookItem) {
@@ -159,6 +154,117 @@ class BookDetailActivity : AppCompatActivity() {
         }
     }
 
+    private fun setupEditForm(book: BookItem) {
+        binding.inputTitle.setText(book.title)
+        binding.inputAuthor.setText(book.author)
+        binding.inputDescription.setText(book.description)
+        binding.inputLanguage.setText(book.language)
+        binding.inputStatus.setText(book.status)
+        binding.inputGenres.setText(book.genres.joinToString(", "))
+        binding.inputTags.setText(book.tags.joinToString(", "))
+
+        Glide.with(this)
+            .load(book.coverUrl)
+            .placeholder(R.drawable.placeholder_cover)
+            .into(binding.imgEditCover)
+
+        binding.btnPickCover.setOnClickListener {
+            pickCoverLauncher.launch("image/*")
+        }
+
+        binding.btnSaveEdits.setOnClickListener {
+            val updatedBook = book.copy(
+                title = binding.inputTitle.text?.toString()?.trim().orEmpty(),
+                author = binding.inputAuthor.text?.toString()?.trim().orEmpty(),
+                description = binding.inputDescription.text?.toString()?.trim().orEmpty(),
+                language = binding.inputLanguage.text?.toString()?.trim().orEmpty(),
+                status = binding.inputStatus.text?.toString()?.trim().orEmpty(),
+                genres = binding.inputGenres.text?.toString()?.split(',')?.map { it.trim() }?.filter { it.isNotEmpty() }
+                    ?: emptyList(),
+                tags = binding.inputTags.text?.toString()?.split(',')?.map { it.trim() }?.filter { it.isNotEmpty() }
+                    ?: emptyList(),
+            )
+
+            if (updatedBook.title.isBlank()) {
+                Toast.makeText(this, R.string.error_titulo_vacio, Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.book_detail_confirm_edit)
+                .setMessage(R.string.book_detail_confirm_edit_message)
+                .setPositiveButton(R.string.guardar) { _, _ ->
+                    saveBookEdits(updatedBook)
+                }
+                .setNegativeButton(R.string.cancelar, null)
+                .show()
+        }
+    }
+
+    private fun saveBookEdits(updatedBook: BookItem) {
+        FirebaseBookRepository.updateBookWithOptionalCover(updatedBook, selectedCoverBytes) { success, savedBook ->
+            if (success && savedBook != null) {
+                BookCache.currentBook = savedBook
+                renderBook(savedBook)
+                Glide.with(this)
+                    .load(savedBook.coverUrl)
+                    .placeholder(R.drawable.placeholder_cover)
+                    .into(binding.imgEditCover)
+                selectedCoverBytes = null
+                Toast.makeText(this, R.string.book_detail_edit_success, Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(this, R.string.book_detail_edit_error, Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+
+    private fun handleCoverSelected(uri: Uri) {
+        val bytes = contentResolver.openInputStream(uri)?.use { input -> input.readBytes() }
+        if (bytes == null) {
+            Toast.makeText(this, R.string.book_detail_pick_cover_error, Toast.LENGTH_SHORT).show()
+            return
+        }
+        selectedCoverBytes = bytes
+        Glide.with(this)
+            .load(bytes)
+            .placeholder(R.drawable.placeholder_cover)
+            .into(binding.imgEditCover)
+    }
+
+    private fun selectTab(tab: DetailTab) {
+        binding.boxAbout.isVisible = tab == DetailTab.ABOUT
+        binding.boxToc.isVisible = tab == DetailTab.TOC
+        binding.boxEdit.isVisible = tab == DetailTab.EDIT
+
+        val selectedColor = getColorFromAttr(com.google.android.material.R.attr.colorOnPrimary)
+        val unselectedColor = getColorFromAttr(com.google.android.material.R.attr.colorOnSurface)
+
+        when (tab) {
+            DetailTab.ABOUT -> {
+                binding.tabAbout.setBackgroundResource(R.drawable.bg_segment_left_selected)
+                binding.tabToc.setBackgroundResource(R.drawable.bg_segment_middle_unselected)
+                binding.tabEdit.setBackgroundResource(R.drawable.bg_segment_right_unselected)
+            }
+
+            DetailTab.TOC -> {
+                binding.tabAbout.setBackgroundResource(R.drawable.bg_segment_left_unselected)
+                binding.tabToc.setBackgroundResource(R.drawable.bg_segment_middle_selected)
+                binding.tabEdit.setBackgroundResource(R.drawable.bg_segment_right_unselected)
+            }
+
+            DetailTab.EDIT -> {
+                binding.tabAbout.setBackgroundResource(R.drawable.bg_segment_left_unselected)
+                binding.tabToc.setBackgroundResource(R.drawable.bg_segment_middle_unselected)
+                binding.tabEdit.setBackgroundResource(R.drawable.bg_segment_right_selected)
+            }
+        }
+
+        binding.tabAbout.setTextColor(if (tab == DetailTab.ABOUT) selectedColor else unselectedColor)
+        binding.tabToc.setTextColor(if (tab == DetailTab.TOC) selectedColor else unselectedColor)
+        binding.tabEdit.setTextColor(if (tab == DetailTab.EDIT) selectedColor else unselectedColor)
+    }
+
     private fun observeLibraryState(book: BookItem) {
         val bookId = book.id
         val uid = FirebaseBookRepository.currentUserId()
@@ -210,6 +316,7 @@ class BookDetailActivity : AppCompatActivity() {
         return typedValue.data
     }
 
+    private enum class DetailTab { ABOUT, TOC, EDIT }
 
     companion object {
         private const val EXTRA_BOOK_JSON = "extra_book_json"

@@ -16,6 +16,7 @@ import com.example.lectornovelaselectronicos.data.BookCache
 import com.example.lectornovelaselectronicos.data.FirebaseBookRepository
 import com.example.lectornovelaselectronicos.data.ReadingHistoryEntry
 import com.example.lectornovelaselectronicos.ui.reader.ChapterContentActivity
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 
@@ -29,7 +30,10 @@ class Historial : Fragment() {
     private lateinit var tvPalabras: TextView
     private lateinit var tvProgreso: TextView
 
-    private val adapter = HistoryAdapter { item -> onHistoryClick(item) }
+    private val adapter = HistoryAdapter(
+        onClick = { item -> onHistoryClick(item) },
+        onRemove = { item -> onHistoryRemove(item) },
+    )
 
     private val catalogMap = linkedMapOf<String, com.example.lectornovelaselectronicos.Fragmentos.Biblioteca_Items.BookItem>()
     private var historyEntries: List<ReadingHistoryEntry> = emptyList()
@@ -164,6 +168,23 @@ class Historial : Fragment() {
             requireContext(),
             chapterIndex,
         )
+    }
+
+    private fun onHistoryRemove(item: HistoryItem) {
+        val bookId = item.entry.bookId
+        if (bookId.isBlank()) return
+
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(R.string.historial_confirm_delete_title)
+            .setMessage(R.string.historial_confirm_delete_message)
+            .setPositiveButton(R.string.borrar_libro) { _, _ ->
+                FirebaseBookRepository.removeHistoryEntry(bookId) { success ->
+                    val message = if (success) R.string.historial_remover_entry else R.string.error_generico
+                    Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+                }
+            }
+            .setNegativeButton(R.string.cancelar, null)
+            .show()
     }
 
 

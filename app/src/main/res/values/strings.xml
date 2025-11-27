@@ -79,6 +79,9 @@
     <string name="historial_stat_novelas">%1$d</string>
     <string name="historial_stat_palabras">%1$d</string>
     <string name="historial_stat_progreso">%1$d%%</string>
+    <string name="historial_remover_entry">Quitar del historial</string>
+    <string name="historial_confirm_delete_title">Eliminar entrada</string>
+    <string name="historial_confirm_delete_message">Se eliminará este libro de tu historial reciente.</string>
 
     <string name="book_detail_genres">Géneros</string>
     <string name="book_detail_tags">Etiquetas</string>
@@ -154,6 +157,22 @@
 
     <string name="book_detail_about">About</string>
     <string name="book_detail_toc">Table of Contents</string>
+    <string name="book_detail_edit">Editar</string>
+    <string name="book_detail_edit_title">Editar novela</string>
+    <string name="book_detail_pick_cover">Cambiar portada</string>
+    <string name="book_detail_title_label">Título</string>
+    <string name="book_detail_author_label">Autor</string>
+    <string name="book_detail_description_label">Descripción</string>
+    <string name="book_detail_language_label">Idioma</string>
+    <string name="book_detail_status_label">Estado</string>
+    <string name="book_detail_genres_label">Géneros (separados por comas)</string>
+    <string name="book_detail_tags_label">Etiquetas (separadas por comas)</string>
+    <string name="book_detail_save_edits">Guardar cambios</string>
+    <string name="book_detail_confirm_edit">Guardar edición</string>
+    <string name="book_detail_confirm_edit_message">Se actualizarán los datos de la novela y la portada.</string>
+    <string name="book_detail_edit_success">Novela actualizada correctamente.</string>
+    <string name="book_detail_edit_error">No se pudieron guardar los cambios.</string>
+    <string name="book_detail_pick_cover_error">No se pudo cargar la imagen seleccionada.</string>
 
 
     <string name="book_detail_description_sample">An accident gave Su Hao the ability to reincarnate infinitely. But who can tell him why he can’t live past five years of age every time he is reincarnated?</string>

@@ -81,5 +81,14 @@
                 android:paddingTop="6dp"
                 tools:text="Ayer • 22:15" />
         </LinearLayout>
+
+        <ImageButton
+            android:id="@+id/btnRemove"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/historial_remover_entry"
+            android:padding="8dp"
+            android:src="@drawable/ic_delete" />
     </LinearLayout>
 </androidx.cardview.widget.CardView>
