@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.example.lectornovelaselectronicos.Fragmentos.Biblioteca_Items.BookItem
 import com.example.lectornovelaselectronicos.Fragmentos.Biblioteca_Items.SpacingDecoration
 import com.example.lectornovelaselectronicos.R
+import com.example.lectornovelaselectronicos.data.BookCache
 import com.example.lectornovelaselectronicos.data.FirebaseBookRepository
 import com.example.lectornovelaselectronicos.databinding.FragmentExplorarBinding
 import com.example.lectornovelaselectronicos.ui.detail.BookDetailActivity
@@ -78,7 +79,8 @@ class Explorar : Fragment() {
     }
 
     private fun showBookDetails(book: BookItem) {
-        BookDetailActivity.start(requireContext(), book)
+        BookCache.currentBook = book
+        BookDetailActivity.start(requireContext())
     }
 
     private fun handleError(error: DatabaseError) {

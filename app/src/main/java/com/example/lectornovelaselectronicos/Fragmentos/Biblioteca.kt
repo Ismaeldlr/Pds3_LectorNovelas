@@ -1,7 +1,11 @@
 package com.example.lectornovelaselectronicos.Fragmentos
 
 import android.app.AlertDialog
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.text.InputType
 import android.view.LayoutInflater
 import android.view.View
@@ -10,6 +14,7 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.lectornovelaselectronicos.Fragmentos.Biblioteca_Items.BookAdapter
@@ -17,17 +22,32 @@ import com.example.lectornovelaselectronicos.Fragmentos.Biblioteca_Items.BookIte
 import com.example.lectornovelaselectronicos.Fragmentos.Biblioteca_Items.ChapterSummary
 import com.example.lectornovelaselectronicos.Fragmentos.Biblioteca_Items.SpacingDecoration
 import com.example.lectornovelaselectronicos.R
+import com.example.lectornovelaselectronicos.data.BookCache
+import com.example.lectornovelaselectronicos.data.EpubImporter
 import com.example.lectornovelaselectronicos.data.FirebaseBookRepository
 import com.example.lectornovelaselectronicos.ui.detail.BookDetailActivity
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import java.util.concurrent.Executors
 
 class Biblioteca : Fragment() {
 
     private lateinit var recycler: RecyclerView
     private lateinit var toolbar: androidx.appcompat.widget.Toolbar
     private lateinit var emptyView: TextView
+    private val importExecutor = Executors.newSingleThreadExecutor()
+    private val mainHandler = Handler(Looper.getMainLooper())
+
+    private val epubPicker = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri != null) {
+            requireContext().contentResolver.takePersistableUriPermission(
+                uri,
+                Intent.FLAG_GRANT_READ_URI_PERMISSION
+            )
+            importEpub(uri)
+        }
+    }
 
     private val adapter = BookAdapter(
         onBookClick = { book -> showDetails(book) },
@@ -137,8 +157,10 @@ class Biblioteca : Fragment() {
     }
 
     private fun showDetails(book: BookItem) {
-        BookDetailActivity.start(requireContext(), book)
+        BookCache.currentBook = book
+        BookDetailActivity.start(requireContext())
     }
+
 
     private fun confirmRemove(book: BookItem) {
         val id = book.id ?: return
@@ -286,6 +308,20 @@ class Biblioteca : Fragment() {
     }
 
     private fun showAddDialog() {
+        AlertDialog.Builder(requireContext())
+            .setTitle(R.string.titulo_dialogo_agregar)
+            .setItems(arrayOf(getString(R.string.add_manual_option), getString(R.string.import_epub_option))) { dialog, which ->
+                when (which) {
+                    0 -> showManualAddDialog()
+                    1 -> launchEpubPicker()
+                }
+                dialog.dismiss()
+            }
+            .setNegativeButton(R.string.cancelar, null)
+            .show()
+    }
+
+    private fun showManualAddDialog() {
         val ctx = requireContext()
 
         val layout = android.widget.LinearLayout(ctx).apply {
@@ -339,11 +375,66 @@ class Biblioteca : Fragment() {
                     genres = etGenres.text.toString().split(',').map { it.trim() }.filter { it.isNotEmpty() },
                     tags = etTags.text.toString().split(',').map { it.trim() }.filter { it.isNotEmpty() },
                 )
-                FirebaseBookRepository.catalogReference().push().setValue(book)
+                FirebaseBookRepository.addBookWithOptionalCover(book, null)
                 d.dismiss()
             }
             .setNegativeButton(R.string.cancelar, null)
             .show()
+    }
+
+    private fun launchEpubPicker() {
+        epubPicker.launch(arrayOf("application/epub+zip", "application/octet-stream", "application/zip"))
+    }
+
+    private fun importEpub(uri: Uri) {
+        Toast.makeText(requireContext(), R.string.importing_epub, Toast.LENGTH_SHORT).show()
+        importExecutor.execute {
+            val importer = EpubImporter(requireContext())
+            val result = runCatching { importer.parse(uri) }.getOrElse { error ->
+                mainHandler.post {
+                    Toast.makeText(
+                        requireContext(),
+                        getString(R.string.import_epub_error, error.message ?: ""),
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+                return@execute
+            }
+
+            val chaptersMap = result.chapters.mapIndexed { index, chapter ->
+                val number = index + 1
+                "ch$number" to ChapterSummary(
+                    index = number,
+                    title = chapter.title,
+                    variant = "EPUB",
+                    language = result.language.ifBlank { "" },
+                    content = chapter.content,
+                )
+            }.toMap()
+
+            val importedBook = BookItem(
+                title = result.title,
+                author = result.author,
+                description = result.description,
+                language = result.language,
+                status = "completed",
+                genres = emptyList(),
+                tags = listOf("epub"),
+                chapterCount = result.chapters.size,
+                chapters = chaptersMap,
+            )
+
+            mainHandler.post {
+                FirebaseBookRepository.addBookWithOptionalCover(importedBook, result.coverImage) { success ->
+                    val message = if (success) {
+                        getString(R.string.import_epub_success)
+                    } else {
+                        getString(R.string.import_epub_upload_failed)
+                    }
+                    Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()
+                }
+            }
+        }
     }
 
     private fun handleError(error: DatabaseError) {
