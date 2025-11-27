@@ -58,6 +58,22 @@
     <string name="agregar_biblioteca">Agregar a mi biblioteca</string>
     <string name="quitar_biblioteca">Quitar de mi biblioteca</string>
 
+    <!-- Historial de lectura -->
+    <string name="titulo_historial">Historial</string>
+    <string name="historial_vacio">Cuando leas una novela aparecerá aquí.</string>
+    <string name="historial_inicia_sesion">Inicia sesión para ver tu historial de lectura.</string>
+    <string name="historial_libro_no_disponible">El libro ya no está disponible en el catálogo.</string>
+    <string name="historial_sin_autor">Autor desconocido</string>
+    <string name="historial_capitulo">Capítulo %1$d</string>
+    <string name="historial_capitulo_desconocido">Capítulo sin título</string>
+    <string name="historial_resumen_capitulo">%1$s • %2$s</string>
+    <string name="historial_stat_titulo_novelas">Novelas leídas</string>
+    <string name="historial_stat_titulo_palabras">Palabras leídas</string>
+    <string name="historial_stat_titulo_progreso">Promedio</string>
+    <string name="historial_stat_novelas">%1$d</string>
+    <string name="historial_stat_palabras">%1$d</string>
+    <string name="historial_stat_progreso">%1$d%%</string>
+
     <string name="book_detail_genres">Géneros</string>
     <string name="book_detail_tags">Etiquetas</string>
     <string name="book_detail_description">Descripción</string>

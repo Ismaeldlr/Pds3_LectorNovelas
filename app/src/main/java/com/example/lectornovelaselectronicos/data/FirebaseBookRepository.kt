@@ -1,12 +1,15 @@
 package com.example.lectornovelaselectronicos.data
 
 import com.example.lectornovelaselectronicos.Fragmentos.Biblioteca_Items.BookItem
+import com.example.lectornovelaselectronicos.Fragmentos.Biblioteca_Items.ChapterSummary
 import com.example.lectornovelaselectronicos.Fragmentos.Biblioteca_Items.effectiveChapterCount
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.MutableData
+import com.google.firebase.database.Transaction
 import com.google.firebase.database.ValueEventListener
 
 /**
@@ -20,6 +23,7 @@ object FirebaseBookRepository {
 
     private val booksRef: DatabaseReference by lazy { database.getReference("books") }
     private val userLibrariesRef: DatabaseReference by lazy { database.getReference("user_libraries") }
+    private val historyRef: DatabaseReference by lazy { database.getReference("user_history") }
 
     fun listenCatalog(
         onData: (List<BookItem>) -> Unit,
@@ -82,4 +86,58 @@ object FirebaseBookRepository {
     fun catalogReference(): DatabaseReference = booksRef
 
     fun userLibraryReferenceFor(uid: String): DatabaseReference = userLibrariesRef.child(uid)
+
+    fun historyReferenceFor(uid: String): DatabaseReference = historyRef.child(uid)
+
+    fun listenUserHistory(
+        uid: String,
+        onData: (List<ReadingHistoryEntry>) -> Unit,
+        onError: (DatabaseError) -> Unit,
+    ): ValueEventListener {
+        val ref = historyRef.child(uid)
+        val listener = object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val entries = snapshot.children.mapNotNull { it.getValue(ReadingHistoryEntry::class.java) }
+                onData(entries)
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                onError(error)
+            }
+        }
+        ref.addValueEventListener(listener)
+        return listener
+    }
+
+    fun recordReadingProgress(book: BookItem, chapter: ChapterSummary, wordsRead: Int = 0) {
+        val uid = auth.currentUser?.uid ?: return
+        val bookId = book.id ?: return
+        val normalizedWords = wordsRead.coerceAtLeast(0)
+        val path = historyRef.child(uid).child(bookId)
+        path.runTransaction(object : Transaction.Handler {
+            override fun doTransaction(currentData: MutableData): Transaction.Result {
+                val current = currentData.getValue(ReadingHistoryEntry::class.java) ?: ReadingHistoryEntry()
+                val newLastIndex = maxOf(current.lastChapterIndex, chapter.index)
+                val shouldAccumulate = chapter.index > current.lastChapterIndex
+                val updatedWords = if (shouldAccumulate) current.wordsRead + normalizedWords else current.wordsRead
+
+                currentData.value = current.copy(
+                    bookId = bookId,
+                    bookTitle = book.title,
+                    bookAuthor = book.author,
+                    coverUrl = book.coverUrl,
+                    lastChapterIndex = newLastIndex,
+                    lastChapterTitle = chapter.title.ifBlank { chapter.index.toString() },
+                    chapterCount = book.effectiveChapterCount,
+                    wordsRead = updatedWords,
+                    lastReadAt = System.currentTimeMillis(),
+                )
+                return Transaction.success(currentData)
+            }
+
+            override fun onComplete(error: DatabaseError?, committed: Boolean, currentData: DataSnapshot?) {
+                // No-op
+            }
+        })
+    }
 }
