@@ -218,6 +218,7 @@ class BookDetailActivity : AppCompatActivity() {
         }
     }
 
+
     private fun handleCoverSelected(uri: Uri) {
         val bytes = contentResolver.openInputStream(uri)?.use { input -> input.readBytes() }
         if (bytes == null) {

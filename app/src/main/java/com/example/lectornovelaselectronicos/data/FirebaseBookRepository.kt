@@ -12,7 +12,6 @@ import com.google.firebase.database.MutableData
 import com.google.firebase.database.Transaction
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.storage.FirebaseStorage
-import java.util.Locale
 
 /**
  * Funciones utilitarias para acceder al catálogo público de libros y a la biblioteca
@@ -27,7 +26,9 @@ object FirebaseBookRepository {
     private val booksRef: DatabaseReference by lazy { database.getReference("books") }
     private val userLibrariesRef: DatabaseReference by lazy { database.getReference("user_libraries") }
     private val historyRef: DatabaseReference by lazy { database.getReference("user_history") }
-    private val coversRef by lazy { storage.reference.child("covers") }
+
+    // Carpeta raíz para portadas: "novelcovers/<bookId>/cover.img"
+    private val novelCoversRef by lazy { storage.reference.child("novelCovers") }
 
     fun listenCatalog(
         onData: (List<BookItem>) -> Unit,
@@ -93,26 +94,47 @@ object FirebaseBookRepository {
 
     fun historyReferenceFor(uid: String): DatabaseReference = historyRef.child(uid)
 
+    /**
+     * Agrega un libro nuevo al catálogo. Si se proporcionan bytes de portada,
+     * la sube a "dq novelcovers/<bookId>/cover.img" y guarda la URL en coverUrl.
+     */
     fun addBookWithOptionalCover(
         book: BookItem,
         coverBytes: ByteArray? = null,
         onComplete: (Boolean) -> Unit = {},
     ) {
-        if (coverBytes == null) {
-            catalogReference().push().setValue(book).addOnCompleteListener { onComplete(it.isSuccessful) }
+        val catalogRef = catalogReference()
+        val newId = catalogRef.push().key
+        if (newId == null) {
+            onComplete(false)
             return
         }
 
-        uploadCover(coverBytes, book.title) { success, url ->
+        val bookWithId = book.copy(id = newId)
+
+        // Sin portada: solo guardar el libro
+        if (coverBytes == null) {
+            catalogRef.child(newId).setValue(bookWithId)
+                .addOnCompleteListener { onComplete(it.isSuccessful) }
+            return
+        }
+
+        // Con portada: primero subir imagen, luego guardar libro con coverUrl
+        uploadCoverForBook(newId, coverBytes) { success, url ->
             if (!success || url == null) {
                 onComplete(false)
-                return@uploadCover
+                return@uploadCoverForBook
             }
-            val withCover = book.copy(coverUrl = url)
-            catalogReference().push().setValue(withCover).addOnCompleteListener { onComplete(it.isSuccessful) }
+            val withCover = bookWithId.copy(coverUrl = url)
+            catalogRef.child(newId).setValue(withCover)
+                .addOnCompleteListener { onComplete(it.isSuccessful) }
         }
     }
 
+    /**
+     * Actualiza un libro existente. Si hay bytes de portada, los sube a
+     * "dq novelcovers/<bookId>/cover.img" y actualiza coverUrl.
+     */
     fun updateBookWithOptionalCover(
         book: BookItem,
         coverBytes: ByteArray? = null,
@@ -124,19 +146,23 @@ object FirebaseBookRepository {
             return
         }
 
+        val bookRef = booksRef.child(bookId)
+
+        // Sin nueva portada: solo actualizar datos
         if (coverBytes == null) {
-            booksRef.child(bookId).setValue(book)
+            bookRef.setValue(book)
                 .addOnCompleteListener { onComplete(it.isSuccessful, book) }
             return
         }
 
-        uploadCover(coverBytes, book.title) { success, url ->
+        // Con nueva portada
+        uploadCoverForBook(bookId, coverBytes) { success, url ->
             if (!success || url == null) {
                 onComplete(false, null)
-                return@uploadCover
+                return@uploadCoverForBook
             }
             val updatedBook = book.copy(coverUrl = url)
-            booksRef.child(bookId).setValue(updatedBook)
+            bookRef.setValue(updatedBook)
                 .addOnCompleteListener { onComplete(it.isSuccessful, updatedBook) }
         }
     }
@@ -163,7 +189,8 @@ object FirebaseBookRepository {
 
     fun removeHistoryEntry(bookId: String, onComplete: (Boolean) -> Unit = {}) {
         val uid = auth.currentUser?.uid ?: return onComplete(false)
-        historyRef.child(uid).child(bookId).removeValue().addOnCompleteListener { onComplete(it.isSuccessful) }
+        historyRef.child(uid).child(bookId).removeValue()
+            .addOnCompleteListener { onComplete(it.isSuccessful) }
     }
 
     fun recordReadingProgress(book: BookItem, chapter: ChapterSummary, wordsRead: Int = 0) {
@@ -198,19 +225,29 @@ object FirebaseBookRepository {
         })
     }
 
-    private fun uploadCover(coverBytes: ByteArray, title: String, onComplete: (Boolean, String?) -> Unit) {
-        val sanitizedTitle = title.ifBlank { "cover" }
-            .lowercase(Locale.getDefault())
-            .replace("[^a-z0-9]+".toRegex(), "_")
-            .trim('_')
-        val fileName = "${System.currentTimeMillis()}_${sanitizedTitle.ifBlank { "cover" }}.jpg"
-        val ref = coversRef.child(fileName)
+    /**
+     * Sube la portada a la ruta:
+     *   dq novelcovers/<bookId>/cover.img
+     * y devuelve la URL de descarga.
+     */
+    private fun uploadCoverForBook(
+        bookId: String,
+        coverBytes: ByteArray,
+        onComplete: (Boolean, String?) -> Unit,
+    ) {
+        val ref = novelCoversRef.child("$bookId/cover.img")
         ref.putBytes(coverBytes)
             .continueWithTask { task ->
-                if (!task.isSuccessful) throw task.exception ?: Exception("Upload failed")
+                if (!task.isSuccessful) {
+                    throw task.exception ?: Exception("Upload failed")
+                }
                 ref.downloadUrl
             }
-            .addOnSuccessListener { uri -> onComplete(true, uri.toString()) }
-            .addOnFailureListener { onComplete(false, null) }
+            .addOnSuccessListener { uri ->
+                onComplete(true, uri.toString())
+            }
+            .addOnFailureListener {
+                onComplete(false, null)
+            }
     }
 }
