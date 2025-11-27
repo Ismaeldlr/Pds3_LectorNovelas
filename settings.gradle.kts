@@ -16,6 +16,9 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        // Required for nl.siegmann.epublib artifacts used by the EPUB importer
+        maven(url = "https://jcenter.bintray.com/")
+        maven(url = "https://jitpack.io")
     }
 }
 
