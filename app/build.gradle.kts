@@ -66,7 +66,9 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("com.google.code.gson:gson:2.11.0")
     implementation("org.osmdroid:osmdroid-android:6.1.16")
-    implementation("nl.siegmann.epublib:epub-core:3.1")
+    implementation("nl.siegmann.epublib:epublib-core:3.1") {
+        exclude(group = "net.sf.kxml", module = "kxml2")
+    }
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.4")
 }

@@ -11,17 +11,23 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
+
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         google()
         mavenCentral()
-        // Required for nl.siegmann.epublib artifacts used by the EPUB importer
-        maven(url = "https://jcenter.bintray.com/")
-        maven(url = "https://jitpack.io")
+
+        // Repositorio donde realmente está epublib-core
+        maven {
+            url = uri("https://raw.githubusercontent.com/psiegman/mvn-repo/master/releases")
+        }
+
+        maven {
+            url = uri("https://jitpack.io")
+        }
     }
 }
 
 rootProject.name = "LectorNovelasElectronicos"
 include(":app")
- 

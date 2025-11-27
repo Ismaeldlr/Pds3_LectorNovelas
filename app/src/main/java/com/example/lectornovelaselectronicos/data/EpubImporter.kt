@@ -39,7 +39,8 @@ class EpubImporter(private val contentResolver: ContentResolver) {
         val author = metadata.authors.firstOrNull()?.let { listOfNotNull(it.firstname, it.lastname).joinToString(" ").trim() }
             ?.takeIf { it.isNotBlank() } ?: "Autor desconocido"
         val description = metadata.descriptions.firstOrNull()?.toString() ?: ""
-        val language = metadata.languages.firstOrNull()?.takeIf { it.isNotBlank() }
+        // FIX: Changed metadata.languages to metadata.language
+        val language = metadata.language?.takeIf { it.isNotBlank() }
             ?: Locale.getDefault().language
 
         val chapterList = extractChapters(epubBook, language)
@@ -48,7 +49,7 @@ class EpubImporter(private val contentResolver: ContentResolver) {
             "ch${index + 1}" to adjusted
         }.toMap()
 
-        val subjects = metadata.subjects.mapNotNull { it?.toString()?.trim() }.filter { it.isNotEmpty() }
+        val subjects = metadata.subjects.map { it?.toString()?.trim() }.filterNotNull().filter { it.isNotEmpty() }
         val keywords = subjects
 
         return BookItem(
