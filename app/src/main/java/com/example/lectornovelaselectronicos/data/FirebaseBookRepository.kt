@@ -103,22 +103,42 @@ object FirebaseBookRepository {
             return
         }
 
-        val sanitizedTitle = book.title.ifBlank { "cover" }
-            .lowercase(Locale.getDefault())
-            .replace("[^a-z0-9]+".toRegex(), "_")
-            .trim('_')
-        val fileName = "${System.currentTimeMillis()}_${sanitizedTitle.ifBlank { "cover" }}.jpg"
-        val ref = coversRef.child(fileName)
-        ref.putBytes(coverBytes)
-            .continueWithTask { task ->
-                if (!task.isSuccessful) throw task.exception ?: Exception("Upload failed")
-                ref.downloadUrl
+        uploadCover(coverBytes, book.title) { success, url ->
+            if (!success || url == null) {
+                onComplete(false)
+                return@uploadCover
             }
-            .addOnSuccessListener { uri ->
-                val withCover = book.copy(coverUrl = uri.toString())
-                catalogReference().push().setValue(withCover).addOnCompleteListener { onComplete(it.isSuccessful) }
+            val withCover = book.copy(coverUrl = url)
+            catalogReference().push().setValue(withCover).addOnCompleteListener { onComplete(it.isSuccessful) }
+        }
+    }
+
+    fun updateBookWithOptionalCover(
+        book: BookItem,
+        coverBytes: ByteArray? = null,
+        onComplete: (Boolean, BookItem?) -> Unit = { _, _ -> },
+    ) {
+        val bookId = book.id
+        if (bookId.isNullOrBlank()) {
+            onComplete(false, null)
+            return
+        }
+
+        if (coverBytes == null) {
+            booksRef.child(bookId).setValue(book)
+                .addOnCompleteListener { onComplete(it.isSuccessful, book) }
+            return
+        }
+
+        uploadCover(coverBytes, book.title) { success, url ->
+            if (!success || url == null) {
+                onComplete(false, null)
+                return@uploadCover
             }
-            .addOnFailureListener { onComplete(false) }
+            val updatedBook = book.copy(coverUrl = url)
+            booksRef.child(bookId).setValue(updatedBook)
+                .addOnCompleteListener { onComplete(it.isSuccessful, updatedBook) }
+        }
     }
 
     fun listenUserHistory(
@@ -139,6 +159,11 @@ object FirebaseBookRepository {
         }
         ref.addValueEventListener(listener)
         return listener
+    }
+
+    fun removeHistoryEntry(bookId: String, onComplete: (Boolean) -> Unit = {}) {
+        val uid = auth.currentUser?.uid ?: return onComplete(false)
+        historyRef.child(uid).child(bookId).removeValue().addOnCompleteListener { onComplete(it.isSuccessful) }
     }
 
     fun recordReadingProgress(book: BookItem, chapter: ChapterSummary, wordsRead: Int = 0) {
@@ -171,5 +196,21 @@ object FirebaseBookRepository {
                 // No-op
             }
         })
+    }
+
+    private fun uploadCover(coverBytes: ByteArray, title: String, onComplete: (Boolean, String?) -> Unit) {
+        val sanitizedTitle = title.ifBlank { "cover" }
+            .lowercase(Locale.getDefault())
+            .replace("[^a-z0-9]+".toRegex(), "_")
+            .trim('_')
+        val fileName = "${System.currentTimeMillis()}_${sanitizedTitle.ifBlank { "cover" }}.jpg"
+        val ref = coversRef.child(fileName)
+        ref.putBytes(coverBytes)
+            .continueWithTask { task ->
+                if (!task.isSuccessful) throw task.exception ?: Exception("Upload failed")
+                ref.downloadUrl
+            }
+            .addOnSuccessListener { uri -> onComplete(true, uri.toString()) }
+            .addOnFailureListener { onComplete(false, null) }
     }
 }

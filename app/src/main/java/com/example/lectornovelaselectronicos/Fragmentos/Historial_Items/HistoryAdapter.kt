@@ -15,6 +15,7 @@ import java.util.Locale
 
 class HistoryAdapter(
     private val onClick: (HistoryItem) -> Unit,
+    private val onRemove: (HistoryItem) -> Unit,
 ) : RecyclerView.Adapter<HistoryAdapter.VH>() {
 
     private val items = mutableListOf<HistoryItem>()
@@ -28,7 +29,7 @@ class HistoryAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_history_entry, parent, false)
-        return VH(view, onClick, dateFormat)
+        return VH(view, onClick, onRemove, dateFormat)
     }
 
     override fun onBindViewHolder(holder: VH, position: Int) {
@@ -40,6 +41,7 @@ class HistoryAdapter(
     class VH(
         view: View,
         private val onClick: (HistoryItem) -> Unit,
+        private val onRemove: (HistoryItem) -> Unit,
         private val dateFormat: SimpleDateFormat,
     ) : RecyclerView.ViewHolder(view) {
 
@@ -49,6 +51,7 @@ class HistoryAdapter(
         private val progress: TextView = view.findViewById(R.id.tvProgress)
         private val timestamp: TextView = view.findViewById(R.id.tvTimestamp)
         private val progressBar: ProgressBar = view.findViewById(R.id.progressBar)
+        private val btnRemove: View = view.findViewById(R.id.btnRemove)
 
         fun bind(item: HistoryItem) {
             val ctx = itemView.context
@@ -85,6 +88,7 @@ class HistoryAdapter(
                 .into(cover)
 
             itemView.setOnClickListener { onClick(item) }
+            btnRemove.setOnClickListener { onRemove(item) }
         }
     }
 }
