@@ -110,20 +110,20 @@
                 android:layout_width="0dp"
                 android:layout_height="1dp"
                 android:layout_weight="1"
-                android:background="#DDDDDD"/>
+                android:background="?attr/colorOutline"/>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="  o continúa con  "
                 android:textSize="12sp"
-                android:textColor="#7A7A7A"/>
+                android:textColor="?attr/colorOnSurfaceVariant"/>
 
             <View
                 android:layout_width="0dp"
                 android:layout_height="1dp"
                 android:layout_weight="1"
-                android:background="#DDDDDD"/>
+                android:background="?attr/colorOutline"/>
         </androidx.appcompat.widget.LinearLayoutCompat>
 
         <!-- Botón de Google (oficial) -->

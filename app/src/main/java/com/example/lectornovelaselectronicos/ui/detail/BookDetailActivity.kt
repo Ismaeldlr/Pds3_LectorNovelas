@@ -34,7 +34,7 @@ import java.util.Locale
 class BookDetailActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityBookDetailBinding
-    private lateinit var chapterAdapter: ChapterAdapter
+    private lateinit var chapterAdapter: ChapterBlockAdapter
     private var libraryListener: ValueEventListener? = null
     private var libraryRef: DatabaseReference? = null
     private var isInLibrary: Boolean = false
@@ -84,7 +84,7 @@ class BookDetailActivity : AppCompatActivity() {
     }
 
     private fun setupChapterAdapter(book: BookItem) {
-        chapterAdapter = ChapterAdapter { _, position ->
+        chapterAdapter = ChapterBlockAdapter { _, position ->
             BookCache.currentBook = book
             ChapterContentActivity.start(this, position)
         }
@@ -129,7 +129,7 @@ class BookDetailActivity : AppCompatActivity() {
             .into(binding.imgCover)
 
         val chapters = book.sortedChapters
-        chapterAdapter.submitList(chapters)
+        chapterAdapter.submitChapters(chapters)
         binding.rvChapters.isVisible = chapters.isNotEmpty()
         binding.tvEmptyChapters.isVisible = chapters.isEmpty()
     }
