@@ -10,6 +10,7 @@ import com.example.lectornovelaselectronicos.Fragmentos.Biblioteca_Items.Chapter
 import com.example.lectornovelaselectronicos.Fragmentos.Biblioteca_Items.sortedChapters
 import com.example.lectornovelaselectronicos.R
 import com.example.lectornovelaselectronicos.databinding.ActivityChapterContentBinding
+import com.example.lectornovelaselectronicos.data.FirebaseBookRepository
 import com.google.gson.Gson
 
 class ChapterContentActivity : AppCompatActivity() {
@@ -105,7 +106,14 @@ class ChapterContentActivity : AppCompatActivity() {
         val content = chapter.content.ifBlank { getString(R.string.chapter_content_unavailable) }
         binding.tvChapterContent.text = content
 
+        persistProgress(chapter, content)
+
         updateButtonStates()
+    }
+
+    private fun persistProgress(chapter: ChapterSummary, content: String) {
+        val wordCount = content.split(Regex("\\s+")).filter { it.isNotBlank() }.size
+        FirebaseBookRepository.recordReadingProgress(book, chapter, wordCount)
     }
 
     private fun updateButtonStates() {
