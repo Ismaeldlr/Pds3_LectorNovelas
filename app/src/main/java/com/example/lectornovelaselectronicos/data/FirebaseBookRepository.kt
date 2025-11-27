@@ -11,6 +11,8 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.MutableData
 import com.google.firebase.database.Transaction
 import com.google.firebase.database.ValueEventListener
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
 
 /**
  * Funciones utilitarias para acceder al catálogo público de libros y a la biblioteca
@@ -20,10 +22,12 @@ object FirebaseBookRepository {
 
     private val database: FirebaseDatabase by lazy { FirebaseDatabase.getInstance() }
     private val auth: FirebaseAuth by lazy { FirebaseAuth.getInstance() }
+    private val storage: FirebaseStorage by lazy { FirebaseStorage.getInstance() }
 
     private val booksRef: DatabaseReference by lazy { database.getReference("books") }
     private val userLibrariesRef: DatabaseReference by lazy { database.getReference("user_libraries") }
     private val historyRef: DatabaseReference by lazy { database.getReference("user_history") }
+    private val coversRef: StorageReference by lazy { storage.reference.child("covers") }
 
     fun listenCatalog(
         onData: (List<BookItem>) -> Unit,
@@ -139,5 +143,44 @@ object FirebaseBookRepository {
                 // No-op
             }
         })
+    }
+
+    /**
+     * Guarda un libro importado en el catálogo y opcionalmente sube su portada a Firebase Storage.
+     */
+    fun saveImportedBook(book: BookItem, coverBytes: ByteArray?, onComplete: (Boolean) -> Unit) {
+        if (coverBytes != null) {
+            uploadCover(coverBytes) { url ->
+                url?.let { book.coverUrl = it }
+                pushBook(book, onComplete)
+            }
+        } else {
+            pushBook(book, onComplete)
+        }
+    }
+
+    private fun pushBook(book: BookItem, onComplete: (Boolean) -> Unit) {
+        val ref = booksRef.push()
+        ref.setValue(book).addOnCompleteListener { task ->
+            val success = task.isSuccessful
+            if (success) {
+                ref.key?.let { addToUserLibrary(it) }
+            }
+            onComplete(success)
+        }
+    }
+
+    private fun uploadCover(bytes: ByteArray, onComplete: (String?) -> Unit) {
+        val filename = "${System.currentTimeMillis()}_${bytes.hashCode()}.jpg"
+        val target = coversRef.child(filename)
+        target.putBytes(bytes)
+            .continueWithTask { upload ->
+                if (!upload.isSuccessful) {
+                    throw upload.exception ?: java.lang.Exception("Upload failed")
+                }
+                target.downloadUrl
+            }
+            .addOnSuccessListener { uri -> onComplete(uri.toString()) }
+            .addOnFailureListener { onComplete(null) }
     }
 }

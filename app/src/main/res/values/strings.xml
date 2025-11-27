@@ -37,6 +37,8 @@
     <string name="card_badge_chapters">%1$d cap.</string>
     <string name="cerrar">Cerrar</string>
     <string name="titulo_dialogo_agregar">Agregar libro al catálogo</string>
+    <string name="option_add_manual">Agregar manualmente</string>
+    <string name="option_import_epub">Importar EPUB</string>
     <string name="hint_titulo">Título</string>
     <string name="hint_autor">Autor</string>
     <string name="hint_chapter_count">Cantidad de capítulos</string>
@@ -49,6 +51,10 @@
     <string name="guardar">Guardar</string>
     <string name="cancelar">Cancelar</string>
     <string name="error_titulo_vacio">El título es obligatorio.</string>
+    <string name="import_epub_start">Preparando importación desde EPUB…</string>
+    <string name="import_epub_error">No se pudo importar el EPUB. Verifica el archivo e inténtalo de nuevo.</string>
+    <string name="import_epub_success">EPUB importado correctamente y agregado al catálogo.</string>
+    <string name="import_epub_cancelled">Importación cancelada.</string>
 
     <!-- Fragment Explorar -->
     <string name="title_explorar">Explorar</string>

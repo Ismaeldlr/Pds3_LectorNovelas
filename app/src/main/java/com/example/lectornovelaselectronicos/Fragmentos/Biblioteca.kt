@@ -1,6 +1,7 @@
 package com.example.lectornovelaselectronicos.Fragmentos
 
 import android.app.AlertDialog
+import android.net.Uri
 import android.os.Bundle
 import android.text.InputType
 import android.view.LayoutInflater
@@ -9,7 +10,9 @@ import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.lectornovelaselectronicos.Fragmentos.Biblioteca_Items.BookAdapter
@@ -17,11 +20,15 @@ import com.example.lectornovelaselectronicos.Fragmentos.Biblioteca_Items.BookIte
 import com.example.lectornovelaselectronicos.Fragmentos.Biblioteca_Items.ChapterSummary
 import com.example.lectornovelaselectronicos.Fragmentos.Biblioteca_Items.SpacingDecoration
 import com.example.lectornovelaselectronicos.R
+import com.example.lectornovelaselectronicos.data.EpubImporter
 import com.example.lectornovelaselectronicos.data.FirebaseBookRepository
 import com.example.lectornovelaselectronicos.ui.detail.BookDetailActivity
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class Biblioteca : Fragment() {
 
@@ -41,6 +48,14 @@ class Biblioteca : Fragment() {
     private var libraryListener: ValueEventListener? = null
     private var libraryUid: String? = null
 
+    private val pickEpubLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+        if (uri != null) {
+            importEpub(uri)
+        } else if (isAdded) {
+            Toast.makeText(requireContext(), R.string.import_epub_cancelled, Toast.LENGTH_SHORT).show()
+        }
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         return inflater.inflate(R.layout.fragment_biblioteca, container, false)
     }
@@ -55,7 +70,7 @@ class Biblioteca : Fragment() {
         toolbar.setOnMenuItemClickListener { item ->
             when (item.itemId) {
                 R.id.action_add -> {
-                    showAddDialog(); true
+                    showAddOptionsDialog(); true
                 }
                 else -> false
             }
@@ -285,7 +300,21 @@ class Biblioteca : Fragment() {
         }
     }
 
-    private fun showAddDialog() {
+    private fun showAddOptionsDialog() {
+        AlertDialog.Builder(requireContext())
+            .setTitle(R.string.titulo_dialogo_agregar)
+            .setItems(arrayOf(getString(R.string.option_add_manual), getString(R.string.option_import_epub))) { dialog, which ->
+                when (which) {
+                    0 -> showManualAddDialog()
+                    1 -> pickEpubLauncher.launch("application/epub+zip")
+                }
+                dialog.dismiss()
+            }
+            .setNegativeButton(R.string.cancelar, null)
+            .show()
+    }
+
+    private fun showManualAddDialog() {
         val ctx = requireContext()
 
         val layout = android.widget.LinearLayout(ctx).apply {
@@ -344,6 +373,30 @@ class Biblioteca : Fragment() {
             }
             .setNegativeButton(R.string.cancelar, null)
             .show()
+    }
+
+    private fun importEpub(uri: Uri) {
+        val ctx = requireContext()
+        Toast.makeText(ctx, R.string.import_epub_start, Toast.LENGTH_SHORT).show()
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            val result = withContext(Dispatchers.IO) {
+                EpubImporter(ctx.contentResolver).parse(uri)
+            }
+
+            if (!isAdded) return@launch
+
+            if (result == null) {
+                Toast.makeText(ctx, R.string.import_epub_error, Toast.LENGTH_LONG).show()
+                return@launch
+            }
+
+            FirebaseBookRepository.saveImportedBook(result.book, result.coverBytes) { success ->
+                if (!isAdded) return@saveImportedBook
+                val message = if (success) R.string.import_epub_success else R.string.import_epub_error
+                Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()
+            }
+        }
     }
 
     private fun handleError(error: DatabaseError) {
