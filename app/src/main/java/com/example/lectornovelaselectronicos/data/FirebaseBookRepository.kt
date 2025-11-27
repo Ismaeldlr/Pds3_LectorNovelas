@@ -11,6 +11,8 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.MutableData
 import com.google.firebase.database.Transaction
 import com.google.firebase.database.ValueEventListener
+import com.google.firebase.storage.FirebaseStorage
+import java.util.Locale
 
 /**
  * Funciones utilitarias para acceder al catálogo público de libros y a la biblioteca
@@ -20,10 +22,12 @@ object FirebaseBookRepository {
 
     private val database: FirebaseDatabase by lazy { FirebaseDatabase.getInstance() }
     private val auth: FirebaseAuth by lazy { FirebaseAuth.getInstance() }
+    private val storage: FirebaseStorage by lazy { FirebaseStorage.getInstance() }
 
     private val booksRef: DatabaseReference by lazy { database.getReference("books") }
     private val userLibrariesRef: DatabaseReference by lazy { database.getReference("user_libraries") }
     private val historyRef: DatabaseReference by lazy { database.getReference("user_history") }
+    private val coversRef by lazy { storage.reference.child("covers") }
 
     fun listenCatalog(
         onData: (List<BookItem>) -> Unit,
@@ -88,6 +92,34 @@ object FirebaseBookRepository {
     fun userLibraryReferenceFor(uid: String): DatabaseReference = userLibrariesRef.child(uid)
 
     fun historyReferenceFor(uid: String): DatabaseReference = historyRef.child(uid)
+
+    fun addBookWithOptionalCover(
+        book: BookItem,
+        coverBytes: ByteArray? = null,
+        onComplete: (Boolean) -> Unit = {},
+    ) {
+        if (coverBytes == null) {
+            catalogReference().push().setValue(book).addOnCompleteListener { onComplete(it.isSuccessful) }
+            return
+        }
+
+        val sanitizedTitle = book.title.ifBlank { "cover" }
+            .lowercase(Locale.getDefault())
+            .replace("[^a-z0-9]+".toRegex(), "_")
+            .trim('_')
+        val fileName = "${System.currentTimeMillis()}_${sanitizedTitle.ifBlank { "cover" }}.jpg"
+        val ref = coversRef.child(fileName)
+        ref.putBytes(coverBytes)
+            .continueWithTask { task ->
+                if (!task.isSuccessful) throw task.exception ?: Exception("Upload failed")
+                ref.downloadUrl
+            }
+            .addOnSuccessListener { uri ->
+                val withCover = book.copy(coverUrl = uri.toString())
+                catalogReference().push().setValue(withCover).addOnCompleteListener { onComplete(it.isSuccessful) }
+            }
+            .addOnFailureListener { onComplete(false) }
+    }
 
     fun listenUserHistory(
         uid: String,
