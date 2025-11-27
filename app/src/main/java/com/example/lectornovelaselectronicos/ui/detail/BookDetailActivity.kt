@@ -15,6 +15,7 @@ import com.example.lectornovelaselectronicos.Fragmentos.Biblioteca_Items.BookIte
 import com.example.lectornovelaselectronicos.Fragmentos.Biblioteca_Items.effectiveChapterCount
 import com.example.lectornovelaselectronicos.Fragmentos.Biblioteca_Items.sortedChapters
 import com.example.lectornovelaselectronicos.R
+import com.example.lectornovelaselectronicos.data.BookCache
 import com.example.lectornovelaselectronicos.data.FirebaseBookRepository
 import com.example.lectornovelaselectronicos.databinding.ActivityBookDetailBinding
 import com.example.lectornovelaselectronicos.ui.reader.ChapterContentActivity
@@ -46,9 +47,9 @@ class BookDetailActivity : AppCompatActivity() {
 
         binding.rvChapters.layoutManager = LinearLayoutManager(this)
 
-        val json = intent.getStringExtra(EXTRA_BOOK_JSON)
-        val book = json?.let { runCatching { gson.fromJson(it, BookItem::class.java) }.getOrNull() }
+        val book = BookCache.currentBook
         if (book == null) {
+            // Por si acaso el proceso fue matado y se perdió el cache
             finish()
             return
         }
@@ -89,7 +90,8 @@ class BookDetailActivity : AppCompatActivity() {
 
     private fun setupChapterAdapter(book: BookItem) {
         chapterAdapter = ChapterAdapter { _, position ->
-            ChapterContentActivity.start(this, book, position)
+            BookCache.currentBook = book
+            ChapterContentActivity.start(this, position)
         }
         binding.rvChapters.adapter = chapterAdapter
     }
@@ -213,10 +215,8 @@ class BookDetailActivity : AppCompatActivity() {
         private const val EXTRA_BOOK_JSON = "extra_book_json"
         private val gson = Gson()
 
-        fun start(context: Context, book: BookItem) {
-            val intent = Intent(context, BookDetailActivity::class.java).apply {
-                putExtra(EXTRA_BOOK_JSON, gson.toJson(book))
-            }
+        fun start(context: Context) {
+            val intent = Intent(context, BookDetailActivity::class.java)
             context.startActivity(intent)
         }
     }

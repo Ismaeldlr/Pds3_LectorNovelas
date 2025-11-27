@@ -12,6 +12,28 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import javax.xml.parsers.DocumentBuilderFactory
 
+// ==================== Helpers de normalización ====================
+
+// Normaliza el nombre de entrada del ZIP para usarlo como clave
+private fun String.normalizeEntryKey(): String =
+    replace('\\', '/').lowercase()
+
+// Normaliza rutas tipo "OEBPS/../content.opf"
+private fun String.normalizePath(): String {
+    val segments = mutableListOf<String>()
+    for (segment in split('/')) {
+        when (segment) {
+            "", "." -> Unit
+            ".." -> if (segments.isNotEmpty()) segments.removeAt(segments.lastIndex)
+            else -> segments.add(segment)
+        }
+    }
+    return segments.joinToString("/")
+}
+
+
+// ============================= Clase ==============================
+
 /**
  * Utilidad ligera para leer archivos EPUB sin dependencias externas. Soporta
  * EPUB 2 y 3 extrayendo metadatos básicos, capítulos y portada.
@@ -35,9 +57,17 @@ class EpubImporter(private val context: Context) {
     fun parse(uri: Uri): Result {
         context.contentResolver.openInputStream(uri)?.use { input ->
             val entries = readZipEntries(input)
-            val container = entries["META-INF/container.xml".lowercase()] ?: error("container.xml no encontrado")
+
+            // 1) container.xml
+            val containerKey = "META-INF/container.xml".normalizeEntryKey()
+            val container = entries[containerKey]
+                ?: error("container.xml no encontrado")
+
+            // 2) ruta del paquete principal (.opf)
             val rootPath = parseRootFilePath(container)
-            val opfBytes = entries[rootPath.lowercase()] ?: error("Paquete principal no encontrado")
+            val opfKey = rootPath.normalizeEntryKey()
+            val opfBytes = entries[opfKey]
+                ?: error("Paquete principal no encontrado")
 
             val packageDoc = parseXml(opfBytes)
             val manifest = parseManifest(packageDoc, rootPath)
@@ -49,14 +79,15 @@ class EpubImporter(private val context: Context) {
                 val manifestItem = manifest[idRef] ?: return@mapIndexedNotNull null
                 if (!manifestItem.isHtml()) return@mapIndexedNotNull null
 
-                val entryKey = manifestItem.fullPath.lowercase()
+                val entryKey = manifestItem.fullPathKey
                 val htmlBytes = entries[entryKey] ?: return@mapIndexedNotNull null
                 val html = htmlBytes.toString(Charsets.UTF_8)
                 val title = extractTitle(html, index + 1)
                 val textContent = HtmlCompat.fromHtml(html, HtmlCompat.FROM_HTML_MODE_LEGACY)
                     .toString()
                     .replace("\u00a0", " ")
-                    .replace("\s+".toRegex(), " ")
+                    .replace(Regex("[ \\t\\x0B\\f\\r]+"), " ")  // respeta \n
+                    .replace(Regex("\n{3,}"), "\n\n")
                     .trim()
 
                 if (textContent.isBlank()) return@mapIndexedNotNull null
@@ -77,6 +108,8 @@ class EpubImporter(private val context: Context) {
         error("No se pudo abrir el archivo EPUB")
     }
 
+
+    // Lee todas las entradas del ZIP y las guarda con clave normalizada
     private fun readZipEntries(input: InputStream): Map<String, ByteArray> {
         val map = mutableMapOf<String, ByteArray>()
         ZipInputStream(input).use { zip ->
@@ -84,7 +117,8 @@ class EpubImporter(private val context: Context) {
             while (entry != null) {
                 if (!entry.isDirectory) {
                     val bytes = zip.readBytes()
-                    map[entry.name.lowercase()] = bytes
+                    val key = entry.name.normalizeEntryKey()
+                    map[key] = bytes
                 }
                 zip.closeEntry()
                 entry = zip.nextEntry
@@ -94,14 +128,14 @@ class EpubImporter(private val context: Context) {
     }
 
     private fun parseRootFilePath(containerXml: ByteArray): String {
-        val doc = parseXml(containerXml)
-        val rootfiles = doc.getElementsByTagName("rootfile")
-        if (rootfiles.length == 0) error("rootfile no encontrado en container.xml")
-        val element = rootfiles.item(0) as Element
-        val fullPath = element.getAttribute("full-path")
-        if (fullPath.isNullOrBlank()) error("Ruta de paquete vacía en container.xml")
+        val xml = containerXml.toString(Charsets.UTF_8)
+        val regex = Regex("""full-path\s*=\s*["']([^"']+)["']""")
+        val match = regex.find(xml) ?: error("rootfile no encontrado en container.xml")
+        val fullPath = match.groupValues[1].trim()
+        if (fullPath.isBlank()) error("Ruta de paquete vacía en container.xml")
         return fullPath
     }
+
 
     private data class ManifestItem(
         val id: String,
@@ -110,8 +144,12 @@ class EpubImporter(private val context: Context) {
         val properties: String?,
         val baseDir: String,
     ) {
-        val fullPath: String
-            get() = normalizePath("$baseDir/$href")
+        // clave tal como se guarda en el mapa de entries
+        val fullPathKey: String
+            get() {
+                val combined = if (baseDir.isBlank()) href else "$baseDir/$href"
+                return combined.normalizePath().normalizeEntryKey()
+            }
 
         fun isHtml(): Boolean = mediaType.contains("html", ignoreCase = true)
     }
@@ -178,32 +216,31 @@ class EpubImporter(private val context: Context) {
             ?: manifest.values.firstOrNull { it.id.equals("cover", ignoreCase = true) }
             ?: manifest.values.firstOrNull { it.id.contains("cover", ignoreCase = true) }
         manifestItem ?: return null
-        return entries[manifestItem.fullPath.lowercase()]
+        return entries[manifestItem.fullPathKey]
     }
 
     private fun parseXml(bytes: ByteArray): Document {
         val factory = DocumentBuilderFactory.newInstance().apply {
             isNamespaceAware = true
             isExpandEntityReferences = false
-            setFeature("http://xml.org/sax/features/external-general-entities", false)
-            setFeature("http://xml.org/sax/features/external-parameter-entities", false)
-            setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false)
+
+            fun safeFeature(name: String, value: Boolean) {
+                try {
+                    setFeature(name, value)
+                } catch (_: Exception) {
+                    // En algunas implementaciones de Android no están soportadas, las ignoramos
+                }
+            }
+
+            safeFeature("http://xml.org/sax/features/external-general-entities", false)
+            safeFeature("http://xml.org/sax/features/external-parameter-entities", false)
+            safeFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false)
         }
+
         val builder = factory.newDocumentBuilder()
         return builder.parse(ByteArrayInputStream(bytes))
     }
 
-    private fun normalizePath(path: String): String {
-        val segments = mutableListOf<String>()
-        path.split('/').forEach { segment ->
-            when (segment) {
-                "", "." -> Unit
-                ".." -> if (segments.isNotEmpty()) segments.removeLast()
-                else -> segments.add(segment)
-            }
-        }
-        return segments.joinToString("/")
-    }
 
     private fun Element.getFirstByName(tag: String): Element? {
         val direct = getElementsByTagName(tag)
@@ -240,4 +277,3 @@ class EpubImporter(private val context: Context) {
         return "Capítulo $index"
     }
 }
-

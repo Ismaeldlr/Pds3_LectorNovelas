@@ -9,9 +9,9 @@ import com.example.lectornovelaselectronicos.Fragmentos.Biblioteca_Items.BookIte
 import com.example.lectornovelaselectronicos.Fragmentos.Biblioteca_Items.ChapterSummary
 import com.example.lectornovelaselectronicos.Fragmentos.Biblioteca_Items.sortedChapters
 import com.example.lectornovelaselectronicos.R
-import com.example.lectornovelaselectronicos.databinding.ActivityChapterContentBinding
+import com.example.lectornovelaselectronicos.data.BookCache
 import com.example.lectornovelaselectronicos.data.FirebaseBookRepository
-import com.google.gson.Gson
+import com.example.lectornovelaselectronicos.databinding.ActivityChapterContentBinding
 
 class ChapterContentActivity : AppCompatActivity() {
 
@@ -29,16 +29,17 @@ class ChapterContentActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         binding.toolbar.setNavigationOnClickListener { onBackPressedDispatcher.onBackPressed() }
 
-        val bookJson = intent.getStringExtra(EXTRA_BOOK_JSON)
+        // Obtenemos el libro desde el cache en memoria
+        val cachedBook = BookCache.currentBook
         val initialPosition = intent.getIntExtra(EXTRA_CHAPTER_POSITION, 0)
 
-        val parsedBook = bookJson?.let { runCatching { gson.fromJson(it, BookItem::class.java) }.getOrNull() }
-        if (parsedBook == null) {
+        if (cachedBook == null) {
+            // Si el proceso se mató y se perdió el cache
             finish()
             return
         }
 
-        book = parsedBook
+        book = cachedBook
         chapters = book.sortedChapters
         if (chapters.isEmpty()) {
             finish()
@@ -125,13 +126,10 @@ class ChapterContentActivity : AppCompatActivity() {
     }
 
     companion object {
-        private const val EXTRA_BOOK_JSON = "extra_book_json"
         private const val EXTRA_CHAPTER_POSITION = "extra_chapter_position"
-        private val gson = Gson()
 
-        fun start(context: Context, book: BookItem, chapterPosition: Int) {
+        fun start(context: Context, chapterPosition: Int) {
             val intent = Intent(context, ChapterContentActivity::class.java).apply {
-                putExtra(EXTRA_BOOK_JSON, gson.toJson(book))
                 putExtra(EXTRA_CHAPTER_POSITION, chapterPosition)
             }
             context.startActivity(intent)

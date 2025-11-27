@@ -12,8 +12,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.lectornovelaselectronicos.Fragmentos.Historial_Items.HistoryAdapter
 import com.example.lectornovelaselectronicos.Fragmentos.Historial_Items.HistoryItem
 import com.example.lectornovelaselectronicos.R
+import com.example.lectornovelaselectronicos.data.BookCache
 import com.example.lectornovelaselectronicos.data.FirebaseBookRepository
 import com.example.lectornovelaselectronicos.data.ReadingHistoryEntry
+import com.example.lectornovelaselectronicos.ui.reader.ChapterContentActivity
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 
@@ -150,13 +152,20 @@ class Historial : Fragment() {
             Toast.makeText(requireContext(), R.string.historial_libro_no_disponible, Toast.LENGTH_SHORT).show()
             return
         }
+
+        // Guardamos el libro en el cache en memoria
+        BookCache.currentBook = book
+
+        // lastChapterIndex es 1-based, lo convertimos a índice 0-based
         val chapterIndex = (item.entry.lastChapterIndex - 1).coerceAtLeast(0)
-        com.example.lectornovelaselectronicos.ui.reader.ChapterContentActivity.start(
+
+        // Solo pasamos el índice por Intent
+        ChapterContentActivity.start(
             requireContext(),
-            book,
             chapterIndex,
         )
     }
+
 
     private fun handleError(error: DatabaseError) {
         Toast.makeText(requireContext(), error.message, Toast.LENGTH_SHORT).show()

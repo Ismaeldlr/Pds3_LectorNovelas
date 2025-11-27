@@ -22,6 +22,7 @@ import com.example.lectornovelaselectronicos.Fragmentos.Biblioteca_Items.BookIte
 import com.example.lectornovelaselectronicos.Fragmentos.Biblioteca_Items.ChapterSummary
 import com.example.lectornovelaselectronicos.Fragmentos.Biblioteca_Items.SpacingDecoration
 import com.example.lectornovelaselectronicos.R
+import com.example.lectornovelaselectronicos.data.BookCache
 import com.example.lectornovelaselectronicos.data.EpubImporter
 import com.example.lectornovelaselectronicos.data.FirebaseBookRepository
 import com.example.lectornovelaselectronicos.ui.detail.BookDetailActivity
@@ -156,8 +157,10 @@ class Biblioteca : Fragment() {
     }
 
     private fun showDetails(book: BookItem) {
-        BookDetailActivity.start(requireContext(), book)
+        BookCache.currentBook = book
+        BookDetailActivity.start(requireContext())
     }
+
 
     private fun confirmRemove(book: BookItem) {
         val id = book.id ?: return
